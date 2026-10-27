@@ -63,9 +63,10 @@ foreach ($issue in $issues) {
             body = $issue.body
             labels = $issue.labels
         } | ConvertTo-Json -Compress
+        $bodyBytes = [System.Text.Encoding]::UTF8.GetBytes($bodyJson)
 
         try {
-            $resp = Invoke-RestMethod -Uri "https://api.github.com/repos/$Repo/issues" -Method Post -Headers $headers -Body $bodyJson -ContentType "application/json"
+            $resp = Invoke-RestMethod -Uri "https://api.github.com/repos/$Repo/issues" -Method Post -Headers $headers -Body $bodyBytes -ContentType "application/json; charset=utf-8"
             Write-Host " [OK - #${resp.number}]" -ForegroundColor Green
         } catch {
             Write-Host " [FALHA: $_]" -ForegroundColor Red
