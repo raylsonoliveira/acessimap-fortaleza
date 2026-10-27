@@ -1,0 +1,27 @@
+{
+  "expo": {
+    "name": "AcessiMap Fortaleza",
+    "slug": "acessimap-fortaleza",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "resizeMode": "contain",
+      "backgroundColor": "#00875F"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "br.unifor.acessimap.fortaleza"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#00875F"
+      },
+      "package": "br.unifor.acessimap.fortaleza"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    }
+  }
+}
