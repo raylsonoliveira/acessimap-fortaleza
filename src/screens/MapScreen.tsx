@@ -17,22 +17,59 @@ interface MapScreenProps {
   onNavigateToNewPoint: () => void;
 }
 
+// Bounding box urbana de Fortaleza para projeção proporcional de coordenadas (lat/lng -> % na tela)
+const FORTALEZA_BOUNDS = {
+  latNorth: -3.712,
+  latSouth: -3.782,
+  lngWest: -38.545,
+  lngEast: -38.465,
+};
+
+function projectCoordinatesToMap(lat: number, lng: number, index: number) {
+  const latNorm =
+    (FORTALEZA_BOUNDS.latNorth - lat) /
+    (FORTALEZA_BOUNDS.latNorth - FORTALEZA_BOUNDS.latSouth);
+  const lngNorm =
+    (lng - FORTALEZA_BOUNDS.lngWest) /
+    (FORTALEZA_BOUNDS.lngEast - FORTALEZA_BOUNDS.lngWest);
+
+  const clampedTop = Math.min(80, Math.max(12, Math.round(latNorm * 72 + 10)));
+  const clampedLeft = Math.min(84, Math.max(10, Math.round(lngNorm * 76 + 8)));
+
+  // Pequeno offset determinístico por índice caso dois pontos tenham mesma coordenada
+  const jitterTop = (index % 3 - 1) * 2;
+  const jitterLeft = ((index + 1) % 3 - 1) * 2;
+
+  return {
+    top: `${Math.min(82, Math.max(10, clampedTop + jitterTop))}%`,
+    left: `${Math.min(86, Math.max(8, clampedLeft + jitterLeft))}%`,
+  };
+}
+
 export const MapScreen: React.FC<MapScreenProps> = ({
   onSelectPonto,
   onNavigateToNewPoint,
 }) => {
-  const { pontos, filtroCategoria, setFiltroCategoria, pontosFiltrados, pontoSelecionado, setPontoSelecionado } = useData();
+  const {
+    filtroCategoria,
+    setFiltroCategoria,
+    pontosFiltrados,
+    pontoSelecionado,
+    setPontoSelecionado,
+  } = useData();
   const [busca, setBusca] = useState('');
 
-  const displayedPontos = pontosFiltrados.filter(p =>
-    p.titulo.toLowerCase().includes(busca.toLowerCase()) ||
-    p.endereco.toLowerCase().includes(busca.toLowerCase())
+  const displayedPontos = pontosFiltrados.filter(
+    p =>
+      p.titulo.toLowerCase().includes(busca.toLowerCase()) ||
+      p.endereco.toLowerCase().includes(busca.toLowerCase())
   );
 
   const filterOptions: { key: 'todos' | CategoriaPonto; label: string }[] = [
     { key: 'todos', label: 'Todos' },
     { key: 'rampa', label: 'Rampas' },
     { key: 'calcada', label: 'Calçadas' },
+    { key: 'acesso', label: 'Acessos' },
     { key: 'predio', label: 'Locais' },
   ];
 
@@ -55,18 +92,26 @@ export const MapScreen: React.FC<MapScreenProps> = ({
 
       {/* Área do Mapa Visual Interativo de Fortaleza */}
       <View style={styles.mapCanvas}>
-        {/* Simulação gráfica das vias e avenidas de Fortaleza */}
+        {/* Malha viária de Fortaleza */}
         <View style={styles.streetGridHorizontal1} />
         <View style={styles.streetGridHorizontal2} />
         <View style={styles.streetGridVertical1} />
         <View style={styles.streetGridVertical2} />
         <View style={styles.diagonalStreet} />
 
+        {/* Rótulos geográficos de referência */}
+        <Text style={[styles.zoneLabel, { top: '8%', left: '54%' }]}>Beira-Mar / Meireles</Text>
+        <Text style={[styles.zoneLabel, { top: '24%', left: '12%' }]}>Centro / Iracema</Text>
+        <Text style={[styles.zoneLabel, { top: '42%', left: '48%' }]}>Aldeota</Text>
+        <Text style={[styles.zoneLabel, { top: '74%', left: '58%' }]}>Edson Queiroz / UNIFOR</Text>
+
         <View style={styles.fortalezaWatermark}>
-          <Text style={styles.fortalezaLabel}>FORTALEZA - CE</Text>
+          <Text style={styles.fortalezaLabel}>
+            FORTALEZA - CE ({displayedPontos.length} pontos)
+          </Text>
         </View>
 
-        {/* Marcadores dos Pontos na Tela */}
+        {/* Marcadores dos Pontos Projetados por Latitude e Longitude */}
         {displayedPontos.map((ponto, index) => {
           const isSelected = pontoSelecionado?.id === ponto.id;
           let markerColor = COLORS.accessible;
@@ -83,15 +128,7 @@ export const MapScreen: React.FC<MapScreenProps> = ({
             icon = '📐';
           }
 
-          // Disposição calculada das posições na grade do mapa
-          const positions = [
-            { top: '22%', left: '46%' }, // UNIFOR
-            { top: '15%', left: '74%' }, // Beira-Mar
-            { top: '48%', left: '26%' }, // Centro / Pça do Ferreira
-            { top: '32%', left: '38%' }, // Dragão do Mar
-            { top: '65%', left: '60%' }, // Aldeota
-          ];
-          const pos = positions[index % positions.length];
+          const pos = projectCoordinatesToMap(ponto.latitude, ponto.longitude, index);
 
           return (
             <TouchableOpacity
@@ -124,7 +161,11 @@ export const MapScreen: React.FC<MapScreenProps> = ({
 
       {/* Pílulas de Filtro do Figma */}
       <View style={styles.filtersWrapper}>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filtersScroll}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.filtersScroll}
+        >
           {filterOptions.map(f => {
             const active = filtroCategoria === f.key;
             return (
@@ -165,8 +206,10 @@ export const MapScreen: React.FC<MapScreenProps> = ({
             </View>
 
             <View style={styles.cardFooter}>
-              <Text style={styles.ratingText}>⭐ {pontoSelecionado.nota.toFixed(1)} ({pontoSelecionado.avaliacoesCount} avaliações)</Text>
-              <Text style={styles.detailsLink}>Ver detalhes →</Text>
+              <Text style={styles.ratingText}>
+                ⭐ {pontoSelecionado.nota.toFixed(1)} ({pontoSelecionado.avaliacoesCount} avaliações)
+              </Text>
+              <Text style={styles.detailsLink}>Ver detalhes / Editar →</Text>
             </View>
           </TouchableOpacity>
         ) : (
@@ -213,7 +256,7 @@ const styles = StyleSheet.create({
   },
   mapCanvas: {
     flex: 1,
-    backgroundColor: '#E5E7EB', // Fundo de mapa estilo OpenStreetMap / Figma
+    backgroundColor: '#E5E7EB',
     position: 'relative',
     overflow: 'hidden',
   },
@@ -270,11 +313,21 @@ const styles = StyleSheet.create({
     backgroundColor: '#FEF3C7',
     transform: [{ rotate: '25deg' }],
   },
+  zoneLabel: {
+    position: 'absolute',
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#64748B',
+    backgroundColor: 'rgba(255,255,255,0.65)',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
   fortalezaWatermark: {
     position: 'absolute',
     bottom: 12,
-    right: 12,
-    backgroundColor: 'rgba(255,255,255,0.7)',
+    left: 12,
+    backgroundColor: 'rgba(255,255,255,0.8)',
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: RADIUS.sm,
@@ -282,8 +335,8 @@ const styles = StyleSheet.create({
   fortalezaLabel: {
     fontSize: 10,
     fontWeight: '800',
-    color: '#6B7280',
-    letterSpacing: 1,
+    color: '#475569',
+    letterSpacing: 0.6,
   },
   mapMarker: {
     position: 'absolute',

@@ -35,15 +35,16 @@ Responda ESTRITAMENTE em formato JSON com os campos:
           const data = await response.json();
           const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
           if (rawText) {
-            return JSON.parse(rawText) as SugestaoIA;
+            const parsed = JSON.parse(rawText) as SugestaoIA;
+            return { ...parsed, origem: 'gemini_api' };
           }
         }
       } catch (e) {
-        console.warn('[Gemini API] Falha na chamada online, utilizando motor heurístico:', e);
+        console.warn('[Gemini API] Falha na chamada online, utilizando motor heurístico NBR 9050:', e);
       }
     }
 
-    // Motor Heurístico Resiliente (Garante funcionamento offline / acadêmico)
+    // Motor Heurístico Resiliente (Garante funcionamento sem chave de API configurada)
     return this.classificacaoHeuristica(relato);
   },
 
@@ -79,21 +80,24 @@ Usuário: "${mensagem}"
       }
     }
 
-    // Respostas inteligentes baseadas em intenção para Fortaleza
+    // Respostas inteligentes baseadas em intenção para Fortaleza (modo local sem API key)
     const lower = mensagem.toLowerCase();
     if (lower.includes('praia') || lower.includes('beira-mar') || lower.includes('beira mar')) {
-      return 'O calçadão da Beira-Mar possui ótimas condições de acessibilidade com piso plano e o projeto "Praia Acessível", com esteiras especiais e cadeiras anfíbias para banho de mar assistido.';
+      return 'O calçadão da Beira-Mar (Meireles) possui piso plano contínuo, faixas rebaixadas e o projeto "Praia Acessível" próximo ao Posto 4, com esteiras especiais e cadeiras anfíbias para banho de mar assistido.';
     }
     if (lower.includes('unifor') || lower.includes('universidade')) {
-      return 'O campus da UNIFOR no Edson Queiroz conta com ampla infraestrutura acessível: rampas padronizadas, elevadores nos blocos acadêmicos, piso tátil direcional e vagas especiais próximas às entradas.';
+      return 'O campus da UNIFOR no bairro Edson Queiroz conta com ampla infraestrutura acessível: rampas padronizadas segundo a NBR 9050, elevadores nos blocos, piso tátil direcional contínuo e vagas exclusivas.';
     }
     if (lower.includes('lei') || lower.includes('norma') || lower.includes('nbr') || lower.includes('9050')) {
-      return 'A NBR 9050 da ABNT define critérios de inclinação máxima de rampas (ideal de até 8,33%), largura mínima de 1,20m para passeios e piso tátil de alerta e direcional para pessoas com deficiência visual.';
+      return 'A NBR 9050 da ABNT e a Lei Brasileira de Inclusão (Lei 13.146/2015) estabelecem inclinação máxima de 8,33% para rampas, faixa livre mínima de 1,20m nas calçadas e piso tátil direcional e de alerta.';
     }
-    if (lower.includes('rota') || lower.includes('caminho') || lower.includes('segura')) {
-      return 'No AcessiMap Fortaleza você pode consultar "Rotas Seguras" na aba inferior. O sistema calcula trajetos priorizando ruas com calçadas rebaixadas, rampas suaves e sem obstáculos cadastrados.';
+    if (lower.includes('rota') || lower.includes('caminho') || lower.includes('segura') || lower.includes('trajeto')) {
+      return 'Na aba "Rotas" você pode selecionar qualquer ponto de partida e destino em Fortaleza para calcular a distância, o tempo estimado e verificar quantas rampas, calçadas adaptadas e ocorrências existem no trajeto.';
     }
-    return `Olá! Sou o Assistente de Acessibilidade de Fortaleza. Posso ajudar você a encontrar rotas acessíveis, verificar normas como a NBR 9050 ou analisar problemas em calçadas e rampas da cidade!`;
+    if (lower.includes('reportar') || lower.includes('problema') || lower.includes('calçada') || lower.includes('buraco')) {
+      return 'Para reportar uma barreira urbana (calçada quebrada, rampa danificada ou prédio sem acesso), acesse a aba "Reportar" (+), escolha o tipo de problema, anexe uma foto e envie. Você pode editar ou resolver seus reportes depois na aba "Perfil".';
+    }
+    return 'Olá! Sou o Assistente de Acessibilidade de Fortaleza (modo local NBR 9050). Posso tirar dúvidas sobre a NBR 9050, acessibilidade na Beira-Mar e UNIFOR, cálculo de rotas seguras ou como cadastrar e editar pontos no mapa!';
   },
 
   classificacaoHeuristica(relato: string): SugestaoIA {
@@ -102,41 +106,88 @@ Usuário: "${mensagem}"
     let categoria: CategoriaPonto = 'calcada';
     let estado: StatusAcessibilidade = 'parcial';
     let gravidade: 'Baixa' | 'Média' | 'Alta' = 'Média';
-    let resumo = 'Registro de infraestrutura urbana analisado por IA.';
-    let recomendacao = 'Verificar conformidade com a NBR 9050 e realizar manutenção no trecho.';
+    let resumo = 'Registro de infraestrutura urbana analisado segundo critérios da NBR 9050.';
+    let recomendacao = 'Verificar largura mínima de 1,20m de faixa livre e regularidade do piso conforme NBR 9050.';
 
-    if (texto.includes('rampa')) {
+    if (texto.includes('rampa') || texto.includes('guia') || texto.includes('rebaixo')) {
       categoria = 'rampa';
-      if (texto.includes('quebrada') || texto.includes('danificada') || texto.includes('sem rampa') || texto.includes('alta') || texto.includes('íngreme')) {
+      if (
+        texto.includes('quebrada') ||
+        texto.includes('danificada') ||
+        texto.includes('sem rampa') ||
+        texto.includes('alta') ||
+        texto.includes('íngreme') ||
+        texto.includes('inclinada') ||
+        texto.includes('bloqueada')
+      ) {
         estado = 'inacessivel';
         gravidade = 'Alta';
-        resumo = 'Problema grave em rampa de acesso, inviabilizando circulação segura de cadeirantes.';
-        recomendacao = 'Adequar a inclinação da rampa para no máximo 8,33% e instalar guia de balizamento.';
+        resumo = 'Problema crítico em rampa de acesso, inviabilizando a circulação segura de cadeirantes.';
+        recomendacao = 'Adequar a inclinação longitudinal da rampa para no máximo 8,33% e instalar piso tátil de alerta.';
+      } else if (texto.includes('parcial') || texto.includes('desgastada') || texto.includes('sem corrimão')) {
+        estado = 'parcial';
+        gravidade = 'Média';
+        resumo = 'Rampa existente porém com pendências de conservação ou sinalização.';
+        recomendacao = 'Instalar corrimão em duas alturas (0,70m e 0,92m) e piso tátil de alerta.';
       } else {
         estado = 'acessivel';
         gravidade = 'Baixa';
-        resumo = 'Rampa de acesso em boas condições aparentes.';
-        recomendacao = 'Garantir sinalização visual e piso tátil de alerta no início e fim do desnível.';
+        resumo = 'Rampa de acesso em boas condições de uso e inclinação adequada.';
+        recomendacao = 'Manter conservação periódica e sinalização visual/tátil no início e término da rampa.';
       }
-    } else if (texto.includes('buraco') || texto.includes('obstruíd') || texto.includes('entulho') || texto.includes('poste')) {
+    } else if (
+      texto.includes('buraco') ||
+      texto.includes('obstruíd') ||
+      texto.includes('entulho') ||
+      texto.includes('poste') ||
+      texto.includes('quebrad') ||
+      texto.includes('irregular') ||
+      texto.includes('desnível')
+    ) {
       categoria = 'calcada';
       estado = 'inacessivel';
       gravidade = 'Alta';
-      resumo = 'Obstáculo físico ou calçada esburacada impedindo passagem contínua.';
-      recomendacao = 'Remover barreiras e reconstituir pavimento contínuo e antiderrapante.';
-    } else if (texto.includes('elevador') || texto.includes('entrada') || texto.includes('porta') || texto.includes('degrau')) {
-      categoria = 'acesso';
-      if (texto.includes('degrau') || texto.includes('inacess')) {
+      resumo = 'Barreira física ou pavimento danificado na calçada impedindo a passagem contínua.';
+      recomendacao = 'Desobstruir a faixa livre de circulação (mínimo 1,20m) e recompor o piso regular e antiderrapante.';
+    } else if (
+      texto.includes('prédio') ||
+      texto.includes('órgão') ||
+      texto.includes('hospital') ||
+      texto.includes('escola') ||
+      texto.includes('museu') ||
+      texto.includes('banco')
+    ) {
+      categoria = 'predio';
+      if (texto.includes('escada') || texto.includes('inacess') || texto.includes('desligado') || texto.includes('sem ')) {
         estado = 'inacessivel';
         gravidade = 'Alta';
-        resumo = 'Barreira arquitetônica na entrada do edifício para pessoas com mobilidade reduzida.';
-        recomendacao = 'Construir rampa de acesso com corrimão duplo ou plataforma elevatória.';
+        resumo = 'Edificação pública/privada com barreira arquitetônica que impede o acesso autônomo.';
+        recomendacao = 'Garantir rota acessível desde o passeio até o interior, com rampa ou plataforma elevatória e sanitário adaptado.';
       } else {
         estado = 'acessivel';
         gravidade = 'Baixa';
-        resumo = 'Acesso ao edifício com recursos de acessibilidade disponíveis.';
-        recomendacao = 'Manter portas com largura mínima de 80cm e maçanetas tipo alavanca.';
+        resumo = 'Edificação com infraestrutura de acessibilidade relatada como funcional.';
+        recomendacao = 'Manter sinalização internacional de acesso (SIA) e rotas internas livres de obstáculos.';
       }
+    } else if (texto.includes('elevador') || texto.includes('entrada') || texto.includes('porta') || texto.includes('degrau')) {
+      categoria = 'acesso';
+      if (texto.includes('degrau') || texto.includes('inacess') || texto.includes('estreita')) {
+        estado = 'inacessivel';
+        gravidade = 'Alta';
+        resumo = 'Barreira arquitetônica na entrada do local para pessoas com mobilidade reduzida.';
+        recomendacao = 'Vencer o desnível com rampa suave ou plataforma elevatória e garantir vão livre mínimo de 0,80m nas portas.';
+      } else {
+        estado = 'acessivel';
+        gravidade = 'Baixa';
+        resumo = 'Acesso nivelado e adaptado com recursos de acessibilidade disponíveis.';
+        recomendacao = 'Preservar piso tátil direcional até a recepção e portas com maçaneta tipo alavanca.';
+      }
+    } else if (texto.includes('piso tátil') || texto.includes('adaptad') || texto.includes('acessível') || texto.includes('amplo')) {
+      categoria = 'calcada';
+      estado = 'acessivel';
+      gravidade = 'Baixa';
+      resumo = 'Trecho urbano acessível com condições favoráveis para deslocamento autônomo.';
+      recomendacao = 'Preservar a manutenção do piso tátil e a ausência de obstáculos aéreos ou no solo.';
     }
 
     return {
@@ -145,6 +196,7 @@ Usuário: "${mensagem}"
       classificacaoSugerida: estado,
       gravidade,
       recomendacao,
+      origem: 'heuristica_local',
     };
   },
 };

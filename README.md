@@ -183,12 +183,21 @@ acessimap-fortaleza/
    npm install
    ```
 
-3. **Iniciar o servidor Expo:**
+3. **Configurar Variáveis de Ambiente (Opcional para Firebase Cloud & Gemini 2.5 Flash API):**
+   Copie o arquivo `.env.example` para `.env` na raiz do projeto e preencha suas chaves:
+   ```bash
+   cp .env.example .env
+   ```
+   - `EXPO_PUBLIC_FIREBASE_*`: Credenciais do seu projeto no Firebase Console.
+   - `EXPO_PUBLIC_GEMINI_API_KEY`: Chave do Google AI Studio (utiliza o modelo `gemini-2.5-flash`).
+   - *Nota:* Caso o `.env` não seja configurado, o app opera em modo local com `AsyncStorage` e motor heurístico NBR 9050, validando login com a conta de demonstração (`raylsonsoaresdeoliveira@gmail.com` / senha `123456`) ou novas contas criadas na Tela de Cadastro.
+
+4. **Iniciar o servidor Expo:**
    ```bash
    npx expo start
    ```
 
-4. **Visualizar o aplicativo:**
+5. **Visualizar o aplicativo:**
    - **No celular:** Abra o app **Expo Go** e escaneie o QR Code exibido no terminal.
    - **No navegador:** Pressione `w` no terminal para abrir no navegador web.
    - **No emulador Android:** Pressione `a`.

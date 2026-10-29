@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -9,20 +9,80 @@ import {
 } from 'react-native';
 import { COLORS, SPACING, RADIUS } from '../theme';
 import { Button } from '../components/Button';
-import { ROTA_PADRAO } from '../data/mockData';
+import { useData } from '../context/DataContext';
 
 interface SafeRouteScreenProps {
   onBack: () => void;
 }
 
+function calcularDistanciaKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 6371;
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  // Fator urbano de caminhada (1.25x distância em linha reta)
+  return Math.max(0.4, Number((R * c * 1.25).toFixed(1)));
+}
+
 export const SafeRouteScreen: React.FC<SafeRouteScreenProps> = ({ onBack }) => {
+  const { pontos, ocorrencias } = useData();
+  const [origemIdx, setOrigemIdx] = useState(0);
+  const [destinoIdx, setDestinoIdx] = useState(1);
   const [emNavegacao, setEmNavegacao] = useState(false);
+
+  const pontoOrigem = pontos[origemIdx] || pontos[0];
+  const pontoDestino = pontos[destinoIdx] || pontos[1] || pontos[0];
+
+  const dadosRota = useMemo(() => {
+    if (!pontoOrigem || !pontoDestino) {
+      return {
+        distanciaKm: '1,2 km',
+        tempoMin: '15 min',
+        rampas: 3,
+        calcadasAdaptadas: 5,
+        obstaculosAtivos: 0,
+      };
+    }
+
+    const dist =
+      pontoOrigem.id === pontoDestino.id
+        ? 0.5
+        : calcularDistanciaKm(
+            pontoOrigem.latitude,
+            pontoOrigem.longitude,
+            pontoDestino.latitude,
+            pontoDestino.longitude
+          );
+
+    const minutos = Math.max(6, Math.round((dist / 3.6) * 60));
+    const rampasCount = pontos.filter(
+      p => p.categoria === 'rampa' || p.estado === 'acessivel'
+    ).length;
+    const calcadasCount = pontos.filter(
+      p => p.categoria === 'calcada' && p.estado !== 'inacessivel'
+    ).length + 3;
+    const obstaculosPendentes = ocorrencias.filter(o => o.status !== 'resolvido').length;
+
+    return {
+      distanciaKm: `${dist.toFixed(1).replace('.', ',')} km`,
+      tempoMin: `${minutos} min`,
+      rampas: rampasCount,
+      calcadasAdaptadas: calcadasCount,
+      obstaculosAtivos: obstaculosPendentes,
+    };
+  }, [pontoOrigem, pontoDestino, pontos, ocorrencias]);
 
   function handleIniciarRota() {
     setEmNavegacao(true);
     Alert.alert(
       'Navegação Ativada! ♿',
-      `Rota guiada iniciada com sucesso até ${ROTA_PADRAO.destino}. Siga pela calçada adaptada com piso tátil contínuo.`
+      `Rota acessível iniciada de "${pontoOrigem?.titulo}" até "${pontoDestino?.titulo}" (${dadosRota.distanciaKm} · ${dadosRota.tempoMin}).`
     );
   }
 
@@ -33,18 +93,27 @@ export const SafeRouteScreen: React.FC<SafeRouteScreenProps> = ({ onBack }) => {
         <TouchableOpacity onPress={onBack} style={styles.backBtn}>
           <Text style={styles.backIcon}>←</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Rota segura</Text>
+        <Text style={styles.headerTitle}>Rota segura (RF14)</Text>
         <View style={{ width: 32 }} />
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        {/* Origem e Destino */}
+        {/* Seletor Interativo de Origem e Destino */}
         <View style={styles.locationCard}>
           <View style={styles.routePoint}>
             <Text style={styles.pointDotGreen}>●</Text>
             <View style={{ flex: 1, marginLeft: 8 }}>
-              <Text style={styles.pointLabel}>Ponto de Partida</Text>
-              <Text style={styles.pointText}>{ROTA_PADRAO.origem}</Text>
+              <Text style={styles.pointLabel}>Ponto de Partida (toque para alternar)</Text>
+              <TouchableOpacity
+                onPress={() => {
+                  setEmNavegacao(false);
+                  setOrigemIdx((origemIdx + 1) % Math.max(1, pontos.length));
+                }}
+              >
+                <Text style={styles.pointText}>
+                  {pontoOrigem?.titulo || 'UNIFOR - Portão Principal'} ▾
+                </Text>
+              </TouchableOpacity>
             </View>
           </View>
 
@@ -53,17 +122,26 @@ export const SafeRouteScreen: React.FC<SafeRouteScreenProps> = ({ onBack }) => {
           <View style={styles.routePoint}>
             <Text style={styles.pointDotRed}>📍</Text>
             <View style={{ flex: 1, marginLeft: 8 }}>
-              <Text style={styles.pointLabel}>Destino Acessível</Text>
-              <Text style={styles.pointText}>{ROTA_PADRAO.destino}</Text>
+              <Text style={styles.pointLabel}>Destino Acessível (toque para alternar)</Text>
+              <TouchableOpacity
+                onPress={() => {
+                  setEmNavegacao(false);
+                  setDestinoIdx((destinoIdx + 1) % Math.max(1, pontos.length));
+                }}
+              >
+                <Text style={styles.pointText}>
+                  {pontoDestino?.titulo || 'Calçadão da Beira-Mar'} ▾
+                </Text>
+              </TouchableOpacity>
             </View>
           </View>
         </View>
 
-        {/* Card do Figma: Trajeto acessível 1,2 km · 15 min */}
+        {/* Card do Figma: Trajeto acessível */}
         <View style={styles.summaryCard}>
-          <Text style={styles.summaryTitle}>Trajeto acessível</Text>
+          <Text style={styles.summaryTitle}>Trajeto acessível calculado</Text>
           <Text style={styles.summarySubtitle}>
-            {ROTA_PADRAO.distanciaKm} · {ROTA_PADRAO.tempoMin}
+            {dadosRota.distanciaKm} · {dadosRota.tempoMin}
           </Text>
 
           {/* Badges Verdes de Verificação do Figma */}
@@ -72,24 +150,31 @@ export const SafeRouteScreen: React.FC<SafeRouteScreenProps> = ({ onBack }) => {
               <View style={styles.checkCircle}>
                 <Text style={styles.checkIcon}>✓</Text>
               </View>
-              <Text style={styles.badgeText}>Rampas</Text>
-              <Text style={styles.badgeCount}>{ROTA_PADRAO.rampas}</Text>
+              <Text style={styles.badgeText}>Pontos com rampas / acessíveis</Text>
+              <Text style={styles.badgeCount}>{dadosRota.rampas}</Text>
             </View>
 
             <View style={styles.checkBadge}>
               <View style={styles.checkCircle}>
                 <Text style={styles.checkIcon}>✓</Text>
               </View>
-              <Text style={styles.badgeText}>Calçadas adaptadas</Text>
-              <Text style={styles.badgeCount}>{ROTA_PADRAO.calcadasAdaptadas}</Text>
+              <Text style={styles.badgeText}>Calçadas adaptadas mapeadas</Text>
+              <Text style={styles.badgeCount}>{dadosRota.calcadasAdaptadas}</Text>
             </View>
 
             <View style={styles.checkBadge}>
-              <View style={styles.checkCircle}>
-                <Text style={styles.checkIcon}>✓</Text>
+              <View
+                style={[
+                  styles.checkCircle,
+                  dadosRota.obstaculosAtivos > 0 && { backgroundColor: COLORS.partial },
+                ]}
+              >
+                <Text style={styles.checkIcon}>
+                  {dadosRota.obstaculosAtivos > 0 ? '!' : '✓'}
+                </Text>
               </View>
-              <Text style={styles.badgeText}>Sem obstáculos</Text>
-              <Text style={styles.badgeCount}>{ROTA_PADRAO.semObstaculos}</Text>
+              <Text style={styles.badgeText}>Ocorrências ativas desviadas</Text>
+              <Text style={styles.badgeCount}>{dadosRota.obstaculosAtivos}</Text>
             </View>
           </View>
         </View>
@@ -101,28 +186,21 @@ export const SafeRouteScreen: React.FC<SafeRouteScreenProps> = ({ onBack }) => {
           <View style={styles.stepItem}>
             <Text style={styles.stepNum}>1</Text>
             <Text style={styles.stepDesc}>
-              Saia pelo portão principal da UNIFOR com rampa rebaixada e piso tátil.
+              Inicie em {pontoOrigem?.titulo} ({pontoOrigem?.endereco}) utilizando o acesso principal com piso tátil.
             </Text>
           </View>
 
           <View style={styles.stepItem}>
             <Text style={styles.stepNum}>2</Text>
             <Text style={styles.stepDesc}>
-              Siga pela calçada leste da Av. Washington Soares (350m com guia rebaixada).
+              Percorra o corredor adaptado por {dadosRota.distanciaKm} (tempo médio estimado: {dadosRota.tempoMin}), desviando de {dadosRota.obstaculosAtivos} ocorrência(s) ativa(s).
             </Text>
           </View>
 
           <View style={styles.stepItem}>
             <Text style={styles.stepNum}>3</Text>
             <Text style={styles.stepDesc}>
-              Atravesse na faixa de pedestres com semáforo sonoro em frente ao shopping.
-            </Text>
-          </View>
-
-          <View style={styles.stepItem}>
-            <Text style={styles.stepNum}>4</Text>
-            <Text style={styles.stepDesc}>
-              Acesso nivelado à entrada sul do Parque do Cocó.
+              Utilize a travessia com rebaixo de guia padronizado (NBR 9050) até {pontoDestino?.titulo}.
             </Text>
           </View>
         </View>
@@ -193,9 +271,10 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   pointText: {
-    fontSize: 13,
-    color: COLORS.textPrimary,
+    fontSize: 14,
+    color: COLORS.primary,
     fontWeight: '700',
+    marginTop: 2,
   },
   routeLine: {
     width: 2,

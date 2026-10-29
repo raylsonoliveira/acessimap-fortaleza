@@ -6,7 +6,7 @@ import { DataProvider, useData } from './src/context/DataContext';
 import { Header } from './src/components/Header';
 import { BottomNav, TabKey } from './src/components/BottomNav';
 import { COLORS } from './src/theme';
-import { PontoAcessibilidade } from './src/types';
+import { Ocorrencia, PontoAcessibilidade } from './src/types';
 
 // Telas
 import { LoginScreen } from './src/screens/LoginScreen';
@@ -19,16 +19,24 @@ import { ProfileScreen } from './src/screens/ProfileScreen';
 import { SafeRouteScreen } from './src/screens/SafeRouteScreen';
 import { AiChatModal } from './src/screens/AiChatModal';
 
-type ActiveView = 'tab' | 'new_point' | 'point_detail' | 'report_specific';
+type ActiveView =
+  | 'tab'
+  | 'new_point'
+  | 'edit_point'
+  | 'point_detail'
+  | 'report_specific'
+  | 'edit_ocorrencia';
 
 function MainApp() {
   const { user, loading } = useAuth();
+  const { pontos } = useData();
   const [authFlow, setAuthFlow] = useState<'login' | 'register'>('login');
 
   // Estado de Navegação Principal
   const [currentTab, setCurrentTab] = useState<TabKey>('mapa');
   const [activeView, setActiveView] = useState<ActiveView>('tab');
   const [selectedPoint, setSelectedPoint] = useState<PontoAcessibilidade | null>(null);
+  const [selectedOcorrencia, setSelectedOcorrencia] = useState<Ocorrencia | null>(null);
 
   // Chat com IA
   const [chatModalVisible, setChatModalVisible] = useState(false);
@@ -59,6 +67,9 @@ function MainApp() {
     );
   }
 
+  const pontoAtualizado =
+    (selectedPoint && pontos.find(p => p.id === selectedPoint.id)) || selectedPoint;
+
   // 2. Fluxo Principal da Aplicação
   function renderContent() {
     // Telas em pilha (Stack)
@@ -74,11 +85,28 @@ function MainApp() {
       );
     }
 
-    if (activeView === 'point_detail' && selectedPoint) {
+    if (activeView === 'edit_point' && pontoAtualizado) {
+      return (
+        <NewPointScreen
+          pointToEdit={pontoAtualizado}
+          onBack={() => setActiveView('point_detail')}
+          onSaved={updated => {
+            if (updated) setSelectedPoint(updated);
+            setActiveView('point_detail');
+          }}
+        />
+      );
+    }
+
+    if (activeView === 'point_detail' && pontoAtualizado) {
       return (
         <PointDetailScreen
-          ponto={selectedPoint}
+          ponto={pontoAtualizado}
           onBack={() => setActiveView('tab')}
+          onEditPonto={p => {
+            setSelectedPoint(p);
+            setActiveView('edit_point');
+          }}
           onReportProblem={p => {
             setSelectedPoint(p);
             setActiveView('report_specific');
@@ -87,14 +115,31 @@ function MainApp() {
       );
     }
 
-    if (activeView === 'report_specific' && selectedPoint) {
+    if (activeView === 'report_specific' && pontoAtualizado) {
       return (
         <ReportScreen
-          initialAddress={selectedPoint.endereco}
+          initialAddress={pontoAtualizado.endereco}
           onBack={() => setActiveView('point_detail')}
           onSubmitted={() => {
             setActiveView('tab');
             setCurrentTab('mapa');
+          }}
+        />
+      );
+    }
+
+    if (activeView === 'edit_ocorrencia' && selectedOcorrencia) {
+      return (
+        <ReportScreen
+          ocorrenciaToEdit={selectedOcorrencia}
+          onBack={() => {
+            setSelectedOcorrencia(null);
+            setActiveView('tab');
+          }}
+          onSubmitted={() => {
+            setSelectedOcorrencia(null);
+            setActiveView('tab');
+            setCurrentTab('perfil');
           }}
         />
       );
@@ -126,6 +171,14 @@ function MainApp() {
           <ProfileScreen
             onLogout={() => {}}
             onNavigateToRotas={() => setCurrentTab('rotas')}
+            onEditPonto={p => {
+              setSelectedPoint(p);
+              setActiveView('edit_point');
+            }}
+            onEditOcorrencia={oco => {
+              setSelectedOcorrencia(oco);
+              setActiveView('edit_ocorrencia');
+            }}
           />
         );
       default:

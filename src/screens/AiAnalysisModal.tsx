@@ -22,6 +22,8 @@ export const AiAnalysisModal: React.FC<AiAnalysisModalProps> = ({
 }) => {
   if (!sugestao) return null;
 
+  const isOnlineGemini = sugestao.origem === 'gemini_api';
+
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <View style={styles.overlay}>
@@ -29,7 +31,9 @@ export const AiAnalysisModal: React.FC<AiAnalysisModalProps> = ({
           {/* Header da Tela 5 */}
           <View style={styles.modalHeader}>
             <View style={styles.iaPill}>
-              <Text style={styles.iaPillText}>✨ Google Gemini AI</Text>
+              <Text style={styles.iaPillText}>
+                {isOnlineGemini ? '✨ Google Gemini 2.5 Flash API' : '⚙️ Classificador Local NBR 9050'}
+              </Text>
             </View>
             <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
               <Text style={styles.closeText}>✕</Text>
@@ -39,7 +43,9 @@ export const AiAnalysisModal: React.FC<AiAnalysisModalProps> = ({
           <ScrollView showsVerticalScrollIndicator={false}>
             <Text style={styles.modalTitle}>Auxílio por Inteligência Artificial</Text>
             <Text style={styles.modalSubtitle}>
-              O Gemini analisou seu relato e sugeriu a classificação técnica abaixo segundo a NBR 9050:
+              {isOnlineGemini
+                ? 'O modelo Gemini 2.5 Flash analisou seu relato e sugeriu a classificação técnica segundo a NBR 9050:'
+                : 'Análise realizada pelo motor heurístico local NBR 9050 (configure EXPO_PUBLIC_GEMINI_API_KEY no .env para usar a API em nuvem):'}
             </Text>
 
             {/* Resumo do Relato */}

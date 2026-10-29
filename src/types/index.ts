@@ -20,6 +20,7 @@ export interface PontoAcessibilidade {
   recursos: string[]; // ex: ['Piso Tátil', 'Rampa Suave', 'Corrimão']
   avaliacoesCount: number;
   criadoPor: string;
+  criadoPorId?: string;
   criadoEm: string;
 }
 
@@ -33,6 +34,7 @@ export interface Ocorrencia {
   fotoUrl?: string;
   status: StatusOcorrencia;
   criadoPor: string;
+  criadoPorId?: string;
   criadoEm: string;
 }
 
@@ -69,4 +71,5 @@ export interface SugestaoIA {
   classificacaoSugerida: StatusAcessibilidade;
   gravidade: 'Baixa' | 'Média' | 'Alta';
   recomendacao: string;
+  origem?: 'gemini_api' | 'heuristica_local';
 }

@@ -1,6 +1,6 @@
 import { initializeApp, getApps, type FirebaseApp } from 'firebase/app';
-// @ts-ignore
-import { getAuth, initializeAuth, getReactNativePersistence, type Auth } from 'firebase/auth';
+import * as FirebaseAuth from 'firebase/auth';
+import { getAuth, initializeAuth, type Auth, type Persistence } from 'firebase/auth';
 import { getFirestore, type Firestore } from 'firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
@@ -16,7 +16,8 @@ const firebaseConfig = {
 
 export const isFirebaseConfigured = Boolean(
   process.env.EXPO_PUBLIC_FIREBASE_API_KEY &&
-  process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID
+  process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID &&
+  process.env.EXPO_PUBLIC_FIREBASE_API_KEY !== 'MOCK_API_KEY_ACESSIMAP'
 );
 
 let app: FirebaseApp;
@@ -34,9 +35,16 @@ try {
     auth = getAuth(app);
   } else {
     try {
-      auth = initializeAuth(app, {
-        persistence: getReactNativePersistence(AsyncStorage),
-      });
+      const authModule = FirebaseAuth as unknown as {
+        getReactNativePersistence?: (storage: typeof AsyncStorage) => Persistence;
+      };
+      if (typeof authModule.getReactNativePersistence === 'function') {
+        auth = initializeAuth(app, {
+          persistence: authModule.getReactNativePersistence(AsyncStorage),
+        });
+      } else {
+        auth = getAuth(app);
+      }
     } catch {
       auth = getAuth(app);
     }
@@ -44,7 +52,7 @@ try {
 
   db = getFirestore(app);
 } catch (error) {
-  console.warn('[Firebase] Inicializado em modo resiliente/offline.', error);
+  console.warn('[Firebase] Inicializado em modo local resiliente.', error);
 }
 
 export { app, auth, db };

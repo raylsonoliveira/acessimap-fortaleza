@@ -13,7 +13,8 @@ export const PONTOS_INICIAIS: PontoAcessibilidade[] = [
     comentario: 'Rampas padronizadas com piso tátil contínuo e sinalização visual adequada.',
     recursos: ['Piso Tátil', 'Rampa com Corrimão', 'Elevador', 'Banheiro Adaptado'],
     avaliacoesCount: 42,
-    criadoPor: 'Raylson Oliveira',
+    criadoPor: 'Raylson Soares de Oliveira',
+    criadoPorId: 'raylson-2512902',
     criadoEm: '2026-10-15',
   },
   {
@@ -29,6 +30,7 @@ export const PONTOS_INICIAIS: PontoAcessibilidade[] = [
     recursos: ['Rampa Suave', 'Piso Tátil', 'Vaga Reservada', 'Acesso à Praia'],
     avaliacoesCount: 65,
     criadoPor: 'Comunidade Fortaleza',
+    criadoPorId: 'comunidade-01',
     criadoEm: '2026-10-18',
   },
   {
@@ -44,6 +46,7 @@ export const PONTOS_INICIAIS: PontoAcessibilidade[] = [
     recursos: ['Rampa sem Corrimão', 'Piso Tátil Intermitente'],
     avaliacoesCount: 28,
     criadoPor: 'Maria Silva',
+    criadoPorId: 'usr-maria',
     criadoEm: '2026-10-20',
   },
   {
@@ -59,6 +62,7 @@ export const PONTOS_INICIAIS: PontoAcessibilidade[] = [
     recursos: ['Elevador Panorâmico', 'Rampa Longa', 'Banheiro Adaptado', 'Audioguia'],
     avaliacoesCount: 37,
     criadoPor: 'Carlos Santos',
+    criadoPorId: 'usr-carlos',
     criadoEm: '2026-10-21',
   },
   {
@@ -74,6 +78,7 @@ export const PONTOS_INICIAIS: PontoAcessibilidade[] = [
     recursos: ['Sem Rampa', 'Calçada Obstruída'],
     avaliacoesCount: 14,
     criadoPor: 'João Pedro',
+    criadoPorId: 'usr-joao',
     criadoEm: '2026-10-24',
   },
 ];
@@ -87,7 +92,8 @@ export const OCORRENCIAS_INICIAIS: Ocorrencia[] = [
     latitude: -3.7315,
     longitude: -38.5302,
     status: 'pendente',
-    criadoPor: 'Raylson Oliveira',
+    criadoPor: 'Raylson Soares de Oliveira',
+    criadoPorId: 'raylson-2512902',
     criadoEm: '2026-10-25',
   },
   {
@@ -99,6 +105,7 @@ export const OCORRENCIAS_INICIAIS: Ocorrencia[] = [
     longitude: -38.5074,
     status: 'em_analise',
     criadoPor: 'Ana Beatriz',
+    criadoPorId: 'usr-ana',
     criadoEm: '2026-10-23',
   },
   {
@@ -110,17 +117,18 @@ export const OCORRENCIAS_INICIAIS: Ocorrencia[] = [
     longitude: -38.5369,
     status: 'resolvido',
     criadoPor: 'Lucas Ramos',
+    criadoPorId: 'usr-lucas',
     criadoEm: '2026-10-19',
   },
 ];
 
 export const ROTA_PADRAO: RotaSeguraInfo = {
   id: 'rota-1',
-  origem: 'UNIFOR - Portão Principal (Av. Washington Soares)',
-  destino: 'Parque do Cocó - Entrada Sebastião de Abreu',
-  distanciaKm: '1,2 km',
-  tempoMin: '15 min',
-  rampas: 3,
-  calcadasAdaptadas: 5,
+  origem: 'Campus UNIFOR - Centro de Convivência',
+  destino: 'Calçadão da Beira-Mar (Posto 4)',
+  distanciaKm: '5,4 km',
+  tempoMin: '18 min',
+  rampas: 4,
+  calcadasAdaptadas: 6,
   semObstaculos: 0,
 };
