@@ -2,8 +2,12 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AcessiMap Fortaleza — Simulador Mobile Interativo (UNIFOR T197)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#00875F" />
+  <title>AcessiMap Fortaleza</title>
   <style>
     :root {
       --primary: #00875F;
@@ -54,6 +58,18 @@
       flex-direction: column;
       overflow: hidden;
       position: relative;
+    }
+    @media (max-width: 600px) {
+      body { padding: 0; background: var(--card); }
+      .top-banner { display: none; }
+      .phone-frame {
+        width: 100vw;
+        height: 100dvh;
+        border: none;
+        border-radius: 0;
+        box-shadow: none;
+      }
+      .status-bar { display: none !important; }
     }
     .status-bar {
       height: 26px;
