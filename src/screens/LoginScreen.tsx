@@ -7,6 +7,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Modal,
 } from 'react-native';
 import { COLORS, SPACING, RADIUS } from '../theme';
 import { Button } from '../components/Button';
@@ -22,11 +23,19 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
   onNavigateToRegister,
   onLoginSuccess,
 }) => {
-  const { login } = useAuth();
+  const { login, resetPassword } = useAuth();
   const [email, setEmail] = useState('raylsonsoaresdeoliveira@gmail.com');
   const [senha, setSenha] = useState('123456');
   const [carregando, setCarregando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
+
+  // Password Recovery Modal State
+  const [recoveryVisible, setRecoveryVisible] = useState(false);
+  const [recoveryEmail, setRecoveryEmail] = useState('raylsonsoaresdeoliveira@gmail.com');
+  const [newRecoveryPass, setNewRecoveryPass] = useState('123456');
+  const [recoveryFeedback, setRecoveryFeedback] = useState<string | null>(null);
+  const [recoveryError, setRecoveryError] = useState<string | null>(null);
+  const [recoveryLoading, setRecoveryLoading] = useState(false);
 
   async function handleLogin() {
     if (!email.trim() || !senha) {
@@ -42,6 +51,30 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
       setErro(e.message || 'Falha ao autenticar.');
     } finally {
       setCarregando(false);
+    }
+  }
+
+  async function handlePasswordReset() {
+    setRecoveryError(null);
+    setRecoveryFeedback(null);
+    if (!recoveryEmail.trim()) {
+      setRecoveryError('Informe seu e-mail cadastrado.');
+      return;
+    }
+    if (newRecoveryPass.trim().length < 6) {
+      setRecoveryError('A nova senha deve ter pelo menos 6 caracteres.');
+      return;
+    }
+    setRecoveryLoading(true);
+    try {
+      const msg = await resetPassword(recoveryEmail, newRecoveryPass);
+      setRecoveryFeedback(msg);
+      setEmail(recoveryEmail.trim());
+      setSenha(newRecoveryPass.trim());
+    } catch (e: any) {
+      setRecoveryError(e.message || 'Não foi possível redefinir a senha.');
+    } finally {
+      setRecoveryLoading(false);
     }
   }
 
@@ -95,10 +128,16 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
 
           <TouchableOpacity
             style={styles.forgotBtn}
-            onPress={() => alert('Recuperação de senha: Um link de redefinição seria enviado ao seu e-mail cadastrado.')}
+            onPress={() => {
+              setRecoveryEmail(email || 'raylsonsoaresdeoliveira@gmail.com');
+              setRecoveryError(null);
+              setRecoveryFeedback(null);
+              setRecoveryVisible(true);
+            }}
             accessibilityRole="button"
+            accessibilityLabel="Recuperar senha esquecida"
           >
-            <Text style={styles.forgotText}>Esqueceu sua senha?</Text>
+            <Text style={styles.forgotText}>🔑 Esqueceu sua senha? Recuperar acesso</Text>
           </TouchableOpacity>
 
           <Button
@@ -108,6 +147,59 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
             style={styles.createAccountBtn}
           />
         </View>
+
+        {/* Modal de Recuperação de Senha (Password Recovery) */}
+        <Modal
+          visible={recoveryVisible}
+          transparent
+          animationType="slide"
+          onRequestClose={() => setRecoveryVisible(false)}
+        >
+          <View style={styles.modalBackdrop}>
+            <View style={styles.modalCard}>
+              <Text style={styles.modalTitle}>🔑 Recuperação de Senha</Text>
+              <Text style={styles.modalSubtitle}>
+                Informe seu e-mail cadastrado e defina uma nova senha (ou receba o link via Firebase Auth).
+              </Text>
+
+              <Input
+                label="E-mail da conta"
+                icon="✉️"
+                value={recoveryEmail}
+                onChangeText={setRecoveryEmail}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                placeholder="seu.email@exemplo.com"
+              />
+
+              <Input
+                label="Nova Senha (mín. 6 caracteres)"
+                icon="🔒"
+                value={newRecoveryPass}
+                onChangeText={setNewRecoveryPass}
+                secureTextEntry
+                placeholder="Nova senha de acesso"
+              />
+
+              {recoveryError ? <Text style={styles.errorBanner}>{recoveryError}</Text> : null}
+              {recoveryFeedback ? <Text style={styles.successBanner}>{recoveryFeedback}</Text> : null}
+
+              <Button
+                title="Redefinir Senha Agora"
+                onPress={handlePasswordReset}
+                loading={recoveryLoading}
+                style={styles.loginBtn}
+              />
+
+              <Button
+                title="Voltar para o Login"
+                variant="outline"
+                onPress={() => setRecoveryVisible(false)}
+                style={styles.createAccountBtn}
+              />
+            </View>
+          </View>
+        </Modal>
 
         {/* Tag inferior "Locais" do Figma */}
         <View style={styles.bottomPillContainer}>
@@ -188,6 +280,39 @@ const styles = StyleSheet.create({
     borderRadius: RADIUS.sm,
     marginVertical: SPACING.xs,
     textAlign: 'center',
+  },
+  successBanner: {
+    color: COLORS.primary,
+    fontSize: 13,
+    fontWeight: '700',
+    backgroundColor: COLORS.primaryLight,
+    padding: SPACING.sm,
+    borderRadius: RADIUS.sm,
+    marginVertical: SPACING.xs,
+    textAlign: 'center',
+  },
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(15, 23, 42, 0.65)',
+    justifyContent: 'center',
+    padding: SPACING.lg,
+  },
+  modalCard: {
+    backgroundColor: COLORS.card,
+    borderRadius: RADIUS.lg,
+    padding: SPACING.lg,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: COLORS.textPrimary,
+    marginBottom: 4,
+  },
+  modalSubtitle: {
+    fontSize: 13,
+    color: COLORS.textSecondary,
+    marginBottom: SPACING.md,
+    lineHeight: 18,
   },
   bottomPillContainer: {
     alignItems: 'center',

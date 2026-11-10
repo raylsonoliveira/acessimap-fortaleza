@@ -5,6 +5,7 @@ import { auth, isFirebaseConfigured } from '../config/firebase';
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
+  sendPasswordResetEmail,
   signOut,
   updateProfile,
 } from 'firebase/auth';
@@ -18,6 +19,7 @@ interface AuthContextData {
   loading: boolean;
   login: (email: string, pass: string) => Promise<void>;
   register: (nome: string, email: string, telefone: string, pass: string) => Promise<void>;
+  resetPassword: (email: string, newPassword?: string) => Promise<string>;
   updateUserProfile: (updates: Partial<Pick<Usuario, 'nome' | 'telefone' | 'handle'>>) => Promise<void>;
   logout: () => Promise<void>;
 }
@@ -203,6 +205,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(updatedUser);
   }
 
+  async function resetPassword(email: string, newPassword?: string): Promise<string> {
+    const normalizedEmail = email.trim().toLowerCase();
+    if (!normalizedEmail) {
+      throw new Error('Informe o e-mail cadastrado para recuperar sua senha.');
+    }
+
+    if (isFirebaseConfigured && auth) {
+      await sendPasswordResetEmail(auth, normalizedEmail);
+      return `Link de redefinição enviado para ${normalizedEmail} via Firebase Auth.`;
+    }
+
+    const accounts = await getLocalAccounts();
+    const index = accounts.findIndex(acc => acc.email.toLowerCase() === normalizedEmail);
+    if (index === -1) {
+      throw new Error('Nenhuma conta encontrada com este endereço de e-mail.');
+    }
+
+    const updatedPass = newPassword && newPassword.trim().length >= 6 ? newPassword.trim() : '123456';
+    accounts[index] = {
+      ...accounts[index],
+      passwordHash: updatedPass,
+    };
+    await AsyncStorage.setItem(ACCOUNTS_STORAGE_KEY, JSON.stringify(accounts));
+    return `Senha da conta ${normalizedEmail} redefinida com sucesso! Nova senha: ${updatedPass}`;
+  }
+
   async function logout() {
     try {
       if (isFirebaseConfigured && auth) {
@@ -216,7 +244,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, updateUserProfile, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, register, resetPassword, updateUserProfile, logout }}>
       {children}
     </AuthContext.Provider>
   );

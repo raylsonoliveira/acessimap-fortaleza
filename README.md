@@ -6,11 +6,38 @@
 ![Expo](https://img.shields.io/badge/Expo-51.0-000020?style=for-the-badge&logo=expo&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.3-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
 ![Firebase](https://img.shields.io/badge/Firebase-Auth%20%7C%20Firestore-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)
-![Google Gemini](https://img.shields.io/badge/Google_Gemini-AI_Studio-8E75C2?style=for-the-badge&logo=google&logoColor=white)
+![Google Gemini](https://img.shields.io/badge/Google_Gemini-2.5_Flash-8E75C2?style=for-the-badge&logo=google&logoColor=white)
 
+**Collaborative mobile application for monitoring and querying urban accessibility in Fortaleza, Ceará, Brazil.**  
 **Aplicativo móvel colaborativo para monitoramento e consulta de acessibilidade urbana em Fortaleza – CE.**
 
 </div>
+
+---
+
+## 🌍 English Overview (Internationalization Standard — AVA UNIFOR)
+
+**AcessiMap Fortaleza** is a cross-platform mobile application built with **React Native (Expo SDK 51)** and **TypeScript** for **Course T197 – Mobile Platform Development** at the **University of Fortaleza (UNIFOR)**, taught by **Prof. Lyndainês Santos**.
+
+### Key Features & Evaluation Criteria Coverage
+- **Authentication & Password Recovery (`src/context/AuthContext.tsx`, `src/screens/LoginScreen.tsx`, `src/screens/RegisterScreen.tsx`):**
+  - Sign In (`signInWithEmailAndPassword`), Sign Up (`createUserWithEmailAndPassword`), and Password Recovery (`sendPasswordResetEmail` + local account password reset modal).
+- **Two Complete CRUD Modules (`src/context/DataContext.tsx`):**
+  - **CRUD 1 — Accessibility Points (`PontoAcessibilidade`):** Create, Read, Update, and Delete urban accessibility markers (ramps, tactile paving, accessible sidewalks, adapted buildings) with author ownership verification (`criadoPorId`).
+  - **CRUD 2 — Urban Barriers & Incidents (`Ocorrencia`):** Create, Read, Update, and Delete temporary or permanent urban obstacles with status tracking (`pendente`, `em_analise`, `resolvido`).
+- **AI Assistance (`src/services/geminiService.ts`):**
+  - Powered by **Google Gemini (`gemini-2.5-flash`)** and an **ABNT NBR 9050** technical analysis engine for automatic severity/category classification and an interactive mobility assistant chat.
+- **Responsiveness & Accessibility (`src/theme/index.ts`):**
+  - High-contrast color palette (`#00875F`), minimum `48x48 dp` touch targets (`RNF04`), `SafeAreaView` / `KeyboardAvoidingView` adaptive layouts, and screen-reader labels (`accessibilityRole`, `accessibilityLabel`).
+
+### Quick Start (English)
+```bash
+# 1. Install dependencies
+npm install
+
+# 2. Run on physical mobile device via Expo Go (Tunnel mode bypasses Wi-Fi blocks)
+npx expo start --tunnel
+```
 
 ---
 

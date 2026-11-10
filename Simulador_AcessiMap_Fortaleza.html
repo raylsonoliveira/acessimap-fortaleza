@@ -1,0 +1,1308 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AcessiMap Fortaleza — Simulador Mobile Interativo (UNIFOR T197)</title>
+  <style>
+    :root {
+      --primary: #00875F;
+      --primary-dark: #006B4B;
+      --primary-light: #E6F4EF;
+      --accent: #0D9488;
+      --chat-blue: #4F46E5;
+      --accessible: #10B981;
+      --accessible-light: #D1FAE5;
+      --partial: #F59E0B;
+      --partial-light: #FEF3C7;
+      --inaccessible: #EF4444;
+      --inaccessible-light: #FEE2E2;
+      --bg: #F8FAFC;
+      --card: #FFFFFF;
+      --surface-alt: #F1F5F9;
+      --border: #E2E8F0;
+      --text-primary: #0F172A;
+      --text-secondary: #64748B;
+      --text-muted: #94A3B8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    body {
+      background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      color: var(--text-primary);
+    }
+    .top-banner {
+      color: #F8FAFC;
+      text-align: center;
+      margin-bottom: 12px;
+    }
+    .top-banner h1 { font-size: 18px; font-weight: 800; letter-spacing: -0.3px; }
+    .top-banner p { font-size: 12px; color: #94A3B8; margin-top: 2px; }
+    .phone-frame {
+      width: 390px;
+      height: 780px;
+      background: var(--card);
+      border-radius: 38px;
+      border: 10px solid #334155;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.55);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+    .status-bar {
+      height: 26px;
+      background: #0F172A;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 18px;
+    }
+    .app-header {
+      height: 52px;
+      background: #1E293B;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 14px;
+      flex-shrink: 0;
+    }
+    .ia-badge {
+      background: #334155;
+      border: 1px solid #475569;
+      color: #38BDF8;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .header-title { font-size: 15px; font-weight: 700; }
+    .chat-btn {
+      background: var(--chat-blue);
+      color: #fff;
+      border: none;
+      padding: 6px 11px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .screen-body {
+      flex: 1;
+      overflow-y: auto;
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+    }
+    .bottom-nav {
+      height: 62px;
+      background: var(--card);
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      flex-shrink: 0;
+    }
+    .nav-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      padding: 6px 0;
+      color: var(--text-secondary);
+      font-size: 11px;
+      font-weight: 600;
+      border: none;
+      background: transparent;
+    }
+    .nav-item.active { color: var(--primary); font-weight: 800; }
+    .nav-icon {
+      width: 30px;
+      height: 28px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      margin-bottom: 2px;
+    }
+    .nav-item.active .nav-icon { background: var(--primary-light); }
+
+    /* Sub-header */
+    .sub-header {
+      height: 50px;
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 14px;
+      flex-shrink: 0;
+    }
+    .sub-header h2 { font-size: 16px; font-weight: 700; }
+    .icon-btn {
+      background: transparent;
+      border: none;
+      font-size: 18px;
+      cursor: pointer;
+      padding: 4px 8px;
+    }
+
+    /* Forms & Buttons */
+    .p-lg { padding: 18px; }
+    .form-group { margin-bottom: 12px; }
+    .form-label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 4px; color: var(--text-primary); }
+    .input-wrap {
+      display: flex;
+      align-items: center;
+      background: var(--card);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 0 12px;
+      height: 44px;
+    }
+    .input-wrap input, .textarea-field {
+      border: none;
+      outline: none;
+      width: 100%;
+      font-size: 14px;
+      color: var(--text-primary);
+      background: transparent;
+    }
+    .textarea-field {
+      background: var(--card);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      min-height: 76px;
+      resize: vertical;
+    }
+    .btn {
+      width: 100%;
+      height: 46px;
+      border-radius: 10px;
+      border: none;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 8px;
+      transition: opacity 0.15s;
+    }
+    .btn:hover { opacity: 0.92; }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-outline { background: transparent; border: 1.5px solid var(--primary); color: var(--primary); }
+    .btn-ai { background: #EEF2FF; border: 1.5px solid #C7D2FE; color: #4338CA; }
+    .btn-danger { background: var(--inaccessible); color: #fff; }
+
+    /* Badges */
+    .badge {
+      display: inline-block;
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .badge-acessivel, .badge-resolvido { background: var(--accessible-light); color: #059669; }
+    .badge-parcial, .badge-em_analise { background: var(--partial-light); color: #D97706; }
+    .badge-inacessivel, .badge-pendente { background: var(--inaccessible-light); color: #DC2626; }
+
+    /* Map */
+    .map-canvas {
+      flex: 1;
+      min-height: 320px;
+      background: #E5E7EB;
+      position: relative;
+      overflow: hidden;
+    }
+    .street-h1 { position: absolute; top: 30%; left: 0; right: 0; height: 12px; background: #fff; border-top: 1px solid #D1D5DB; border-bottom: 1px solid #D1D5DB; }
+    .street-h2 { position: absolute; top: 68%; left: 0; right: 0; height: 14px; background: #fff; border-top: 1px solid #D1D5DB; border-bottom: 1px solid #D1D5DB; }
+    .street-v1 { position: absolute; left: 32%; top: 0; bottom: 0; width: 12px; background: #fff; border-left: 1px solid #D1D5DB; border-right: 1px solid #D1D5DB; }
+    .street-v2 { position: absolute; left: 68%; top: 0; bottom: 0; width: 14px; background: #fff; border-left: 1px solid #D1D5DB; border-right: 1px solid #D1D5DB; }
+    .street-diag { position: absolute; top: 22%; left: -10%; width: 120%; height: 10px; background: #FEF3C7; transform: rotate(24deg); }
+    .zone-tag {
+      position: absolute;
+      font-size: 10px;
+      font-weight: 700;
+      color: #475569;
+      background: rgba(255,255,255,0.75);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    .marker {
+      position: absolute;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 2.5px solid #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      cursor: pointer;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+      transition: transform 0.15s;
+    }
+    .marker.selected {
+      border-color: #0F172A;
+      border-width: 3px;
+      transform: scale(1.22);
+      z-index: 10;
+    }
+    .fab {
+      position: absolute;
+      bottom: 12px;
+      right: 12px;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      padding: 9px 14px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.28);
+    }
+    .pills-bar {
+      display: flex;
+      gap: 6px;
+      padding: 8px 12px;
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      overflow-x: auto;
+    }
+    .pill {
+      padding: 5px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      border: 1px solid var(--border);
+      background: var(--surface-alt);
+      color: var(--text-secondary);
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .pill.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+    /* Modal */
+    .modal-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(15,23,42,0.65);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      z-index: 50;
+    }
+    .modal-sheet {
+      background: var(--card);
+      border-top-left-radius: 22px;
+      border-top-right-radius: 22px;
+      padding: 18px;
+      max-height: 88%;
+      overflow-y: auto;
+    }
+    .chip-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+    .chip {
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      border: 1.2px solid var(--border);
+      background: var(--surface-alt);
+      cursor: pointer;
+    }
+    .chip.active { background: var(--primary-light); border-color: var(--primary); color: var(--primary); font-weight: 700; }
+    .error-msg {
+      background: var(--inaccessible-light);
+      color: #B91C1C;
+      padding: 8px 10px;
+      border-radius: 8px;
+      font-size: 12px;
+      text-align: center;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="top-banner">
+    <h1>♿ AcessiMap Fortaleza — Simulador Interativo</h1>
+    <p>UNIFOR • Disciplina T197 • Raylson Soares de Oliveira (2512902)</p>
+  </div>
+
+  <div class="phone-frame" id="app-root"></div>
+
+  <script>
+    // Estado Global do Simulador (Idêntico ao código React Native)
+    const state = {
+      user: null,
+      accounts: [
+        {
+          id: 'raylson-2512902',
+          nome: 'Raylson Soares de Oliveira',
+          email: 'raylsonsoaresdeoliveira@gmail.com',
+          telefone: '(85) 98888-7777',
+          handle: '@raylson_unifor',
+          pass: '123456'
+        }
+      ],
+      authFlow: 'login',
+      authError: '',
+      currentTab: 'mapa',
+      activeView: 'tab', // 'tab' | 'new_point' | 'edit_point' | 'point_detail' | 'report_specific' | 'edit_ocorrencia'
+      filtroCategoria: 'todos',
+      busca: '',
+      selectedPointId: 'ponto-1',
+      editingPoint: null,
+      editingOcorrencia: null,
+      chatOpen: false,
+      aiModalSuggestion: null,
+      origemIdx: 0,
+      destinoIdx: 1,
+      rotaIniciada: false,
+      editProfileOpen: false,
+      showMeusPontos: false,
+      showMeusReportes: true,
+      pontos: [
+        {
+          id: 'ponto-1',
+          titulo: 'Campus UNIFOR - Centro de Convivência',
+          categoria: 'acesso',
+          endereco: 'Av. Washington Soares, 1321 - Edson Queiroz, Fortaleza - CE',
+          latitude: -3.7699,
+          longitude: -38.4778,
+          estado: 'acessivel',
+          nota: 4.9,
+          comentario: 'Rampas padronizadas com piso tátil contínuo e sinalização visual adequada.',
+          recursos: ['Piso Tátil', 'Rampa com Corrimão', 'Elevador', 'Banheiro Adaptado'],
+          avaliacoesCount: 42,
+          criadoPor: 'Raylson Soares de Oliveira',
+          criadoPorId: 'raylson-2512902',
+          criadoEm: '2026-10-15'
+        },
+        {
+          id: 'ponto-2',
+          titulo: 'Calçadão da Beira-Mar (Posto 4)',
+          categoria: 'calcada',
+          endereco: 'Av. Beira Mar - Meireles, Fortaleza - CE',
+          latitude: -3.7258,
+          longitude: -38.4984,
+          estado: 'acessivel',
+          nota: 4.8,
+          comentario: 'Passeio amplo e plano, com faixas de acessibilidade até a faixa de areia adaptada.',
+          recursos: ['Rampa Suave', 'Piso Tátil', 'Vaga Reservada', 'Acesso à Praia'],
+          avaliacoesCount: 65,
+          criadoPor: 'Comunidade Fortaleza',
+          criadoPorId: 'comunidade-01',
+          criadoEm: '2026-10-18'
+        },
+        {
+          id: 'ponto-3',
+          titulo: 'Praça do Ferreira - Centro Histórico',
+          categoria: 'rampa',
+          endereco: 'Rua Floriano Peixoto - Centro, Fortaleza - CE',
+          latitude: -3.7275,
+          longitude: -38.5283,
+          estado: 'parcial',
+          nota: 3.5,
+          comentario: 'Rampas de acesso presentes nos cruzamentos, porém com desníveis na pedra portuguesa.',
+          recursos: ['Rampa sem Corrimão', 'Piso Tátil Intermitente'],
+          avaliacoesCount: 28,
+          criadoPor: 'Maria Silva',
+          criadoPorId: 'usr-maria',
+          criadoEm: '2026-10-20'
+        },
+        {
+          id: 'ponto-4',
+          titulo: 'Centro Dragão do Mar de Arte e Cultura',
+          categoria: 'predio',
+          endereco: 'R. Dragão do Mar, 81 - Praia de Iracema, Fortaleza - CE',
+          latitude: -3.7217,
+          longitude: -38.5202,
+          estado: 'acessivel',
+          nota: 4.7,
+          comentario: 'Passarelas elevadas conectando os museus e teatro com rampas longas e elevadores.',
+          recursos: ['Elevador Panorâmico', 'Rampa Longa', 'Banheiro Adaptado'],
+          avaliacoesCount: 37,
+          criadoPor: 'Carlos Santos',
+          criadoPorId: 'usr-carlos',
+          criadoEm: '2026-10-21'
+        },
+        {
+          id: 'ponto-5',
+          titulo: 'Cruzamento Av. Santos Dumont x R. Tibúrcio Cavalcante',
+          categoria: 'calcada',
+          endereco: 'Aldeota, Fortaleza - CE',
+          latitude: -3.7342,
+          longitude: -38.5029,
+          estado: 'inacessivel',
+          nota: 2.1,
+          comentario: 'Buraco acentuado na calçada e poste obstruindo a passagem de cadeira de rodas.',
+          recursos: ['Sem Rampa', 'Calçada Obstruída'],
+          avaliacoesCount: 14,
+          criadoPor: 'João Pedro',
+          criadoPorId: 'usr-joao',
+          criadoEm: '2026-10-24'
+        }
+      ],
+      ocorrencias: [
+        {
+          id: 'oco-1',
+          tipo: 'calcada',
+          descricao: 'Calçada totalmente quebrada e com entulho impedindo a passagem.',
+          endereco: 'Rua Barão de Aratanha x Av. Duque de Caxias - Centro',
+          status: 'pendente',
+          criadoPor: 'Raylson Soares de Oliveira',
+          criadoPorId: 'raylson-2512902',
+          criadoEm: '2026-10-25'
+        },
+        {
+          id: 'oco-2',
+          tipo: 'rampa',
+          descricao: 'Rampa de acesso à faixa de pedestres com inclinação excessiva.',
+          endereco: 'Av. Pontes Vieira, próximo à Assembleia Legislativa',
+          status: 'em_analise',
+          criadoPor: 'Ana Beatriz',
+          criadoPorId: 'usr-ana',
+          criadoEm: '2026-10-23'
+        }
+      ],
+      mensagensChat: [
+        {
+          remetente: 'ia',
+          texto: 'Olá! Sou o Assistente Inteligente do AcessiMap Fortaleza. Posso esclarecer dúvidas sobre a NBR 9050, sugerir rotas seguras e analisar relatos de acessibilidade!',
+          horario: 'Agora'
+        }
+      ],
+      // Form temporário de Ponto
+      formPonto: {
+        titulo: '',
+        categoria: 'rampa',
+        endereco: 'Av. Washington Soares, Fortaleza - CE',
+        latitude: -3.7520,
+        longitude: -38.4950,
+        estado: 'acessivel',
+        nota: 5,
+        comentario: ''
+      },
+      // Form temporário de Ocorrência
+      formOco: {
+        tipo: 'rampa',
+        endereco: 'Fortaleza - CE',
+        descricao: '',
+        status: 'pendente'
+      }
+    };
+
+    function projectCoords(lat, lng, idx) {
+      const latNorth = -3.712, latSouth = -3.782, lngWest = -38.545, lngEast = -38.465;
+      const latNorm = (latNorth - lat) / (latNorth - latSouth);
+      const lngNorm = (lng - lngWest) / (lngEast - lngWest);
+      const top = Math.min(80, Math.max(12, Math.round(latNorm * 72 + 10))) + ((idx % 3 - 1) * 2);
+      const left = Math.min(84, Math.max(10, Math.round(lngNorm * 76 + 8))) + (((idx + 1) % 3 - 1) * 2);
+      return { top: top + '%', left: left + '%' };
+    }
+
+    function analisarRelatoIA(relato) {
+      const texto = relato.toLowerCase();
+      let categoria = 'calcada', estado = 'parcial', gravidade = 'Média';
+      let resumo = 'Registro de infraestrutura urbana analisado segundo critérios da NBR 9050.';
+      let recomendacao = 'Verificar largura livre mínima de 1,20m e regularidade do piso conforme ABNT NBR 9050.';
+
+      if (texto.includes('rampa') || texto.includes('guia')) {
+        categoria = 'rampa';
+        if (texto.includes('quebrada') || texto.includes('danificada') || texto.includes('sem rampa') || texto.includes('íngreme') || texto.includes('inclinada')) {
+          estado = 'inacessivel'; gravidade = 'Alta';
+          resumo = 'Problema crítico em rampa de acesso, inviabilizando circulação segura de cadeirantes.';
+          recomendacao = 'Adequar inclinação longitudinal máxima para 8,33% e instalar piso tátil de alerta (NBR 9050).';
+        } else {
+          estado = 'acessivel'; gravidade = 'Baixa';
+          resumo = 'Rampa de acesso em boas condições de uso e inclinação adequada.';
+          recomendacao = 'Manter conservação periódica e sinalização tátil/visual no início e término da rampa.';
+        }
+      } else if (texto.includes('buraco') || texto.includes('obstruíd') || texto.includes('entulho') || texto.includes('poste') || texto.includes('quebrad')) {
+        categoria = 'calcada'; estado = 'inacessivel'; gravidade = 'Alta';
+        resumo = 'Barreira física ou pavimento danificado na calçada impedindo passagem contínua.';
+        recomendacao = 'Desobstruir faixa livre mínima de 1,20m e recompor pavimento regular e antiderrapante.';
+      } else if (texto.includes('elevador') || texto.includes('entrada') || texto.includes('degrau')) {
+        categoria = 'acesso'; estado = texto.includes('degrau') ? 'inacessivel' : 'acessivel';
+        gravidade = texto.includes('degrau') ? 'Alta' : 'Baixa';
+        resumo = 'Análise de acesso a edificação para pessoas com mobilidade reduzida.';
+        recomendacao = 'Garantir rampa ou plataforma elevatória e vão livre mínimo de 0,80m nas portas.';
+      }
+      return { resumo, categoriaSugerida: categoria, classificacaoSugerida: estado, gravidade, recomendacao };
+    }
+
+    function responderChatIA(pergunta) {
+      const lower = pergunta.toLowerCase();
+      if (lower.includes('praia') || lower.includes('beira-mar')) {
+        return 'O calçadão da Beira-Mar (Meireles) conta com piso plano contínuo, faixas rebaixadas e o projeto "Praia Acessível" no Posto 4 com cadeiras anfíbias.';
+      }
+      if (lower.includes('nbr') || lower.includes('9050') || lower.includes('rampa')) {
+        return 'A norma ABNT NBR 9050 determina inclinação máxima de 8,33% para rampas, largura livre mínima de 1,20m nas calçadas e piso tátil direcional e de alerta.';
+      }
+      if (lower.includes('unifor')) {
+        return 'O campus da UNIFOR no Edson Queiroz possui rampas padronizadas com corrimão duplo, elevadores, piso tátil contínuo e banheiros adaptados.';
+      }
+      return 'Posso ajudar você a consultar pontos acessíveis em Fortaleza, calcular Rotas Seguras ou classificar problemas em calçadas e rampas segundo a NBR 9050!';
+    }
+
+    function badgeHtml(status) {
+      const labels = {
+        acessivel: 'Totalmente Acessível',
+        parcial: 'Acessibilidade Parcial',
+        inacessivel: 'Inacessível / Alerta',
+        pendente: 'Pendente',
+        em_analise: 'Em Análise',
+        resolvido: 'Resolvido'
+      };
+      return `<span class="badge badge-${status}">${labels[status] || status}</span>`;
+    }
+
+    function render() {
+      const root = document.getElementById('app-root');
+      let html = `
+        <div class="status-bar">
+          <span>22:14</span>
+          <span>📶 5G 🔋 98%</span>
+        </div>
+        <div class="app-header">
+          <span class="ia-badge" onclick="toggleChat(true)">IA</span>
+          <span class="header-title">AcessiMap Fortaleza</span>
+          <button class="chat-btn" onclick="toggleChat(true)">Visualizar chat</button>
+        </div>
+      `;
+
+      // 1. Se não estiver logado -> Tela 1 (Login) ou Tela 2 (Cadastro)
+      if (!state.user) {
+        if (state.authFlow === 'login') {
+          html += `
+            <div class="screen-body p-lg" style="justify-content:center; background:#fff;">
+              <div style="text-align:center; margin-bottom:22px;">
+                <div style="width:74px;height:74px;border-radius:50%;background:#E6F4EF;border:2px solid #00875F;display:inline-flex;align-items:center;justify-content:center;font-size:36px;margin-bottom:8px;">♿</div>
+                <div style="font-size:24px;font-weight:800;color:#00875F;">AcessiMap</div>
+                <div style="font-size:13px;font-weight:700;color:#64748B;letter-spacing:1px;">FORTALEZA</div>
+              </div>
+              ${state.authError ? `<div class="error-msg">${state.authError}</div>` : ''}
+              <div class="form-group">
+                <label class="form-label">E-mail ou usuário</label>
+                <div class="input-wrap">
+                  <span style="margin-right:8px;">✉️</span>
+                  <input id="login-email" type="email" value="raylsonsoaresdeoliveira@gmail.com" />
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Senha</label>
+                <div class="input-wrap">
+                  <span style="margin-right:8px;">🔒</span>
+                  <input id="login-pass" type="password" value="123456" />
+                </div>
+              </div>
+              <button class="btn btn-primary" onclick="handleLogin()">Entrar</button>
+              <div style="text-align:center;margin:10px 0;font-size:12px;color:#00875F;font-weight:700;cursor:pointer;" onclick="switchAuth('recovery')">🔑 Esqueceu sua senha? Recuperar acesso</div>
+              <button class="btn btn-outline" onclick="switchAuth('register')">Criar uma conta</button>
+              <div style="text-align:center;margin-top:24px;">
+                <span style="background:#0D9488;color:#fff;font-size:11px;font-weight:700;padding:5px 14px;border-radius:999px;">Locais Acessíveis</span>
+              </div>
+            </div>
+          `;
+        } else if (state.authFlow === 'recovery') {
+          html += `
+            <div class="sub-header">
+              <button class="icon-btn" onclick="switchAuth('login')">←</button>
+              <h2>Recuperar Senha</h2>
+              <span style="width:24px;"></span>
+            </div>
+            <div class="screen-body p-lg" style="background:#fff;justify-content:center;">
+              <div style="font-size:18px;font-weight:800;margin-bottom:4px;">🔑 Recuperação de Senha</div>
+              <div style="font-size:12px;color:#64748B;margin-bottom:14px;">Informe seu e-mail cadastrado e defina uma nova senha (ou receba o link via Firebase Auth).</div>
+              ${state.authError ? `<div class="error-msg">${state.authError}</div>` : ''}
+              ${state.recoverySuccess ? `<div style="background:#E6F4EF;color:#00875F;font-size:12px;font-weight:700;padding:10px;border-radius:8px;margin-bottom:10px;text-align:center;">${state.recoverySuccess}</div>` : ''}
+              <div class="form-group">
+                <label class="form-label">E-mail da conta</label>
+                <div class="input-wrap"><span style="margin-right:8px;">✉️</span><input id="rec-email" value="raylsonsoaresdeoliveira@gmail.com" /></div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Nova Senha (mín. 6 caracteres)</label>
+                <div class="input-wrap"><span style="margin-right:8px;">🔒</span><input id="rec-pass" type="password" value="123456" /></div>
+              </div>
+              <button class="btn btn-primary" onclick="handleRecovery()">Redefinir Senha Agora</button>
+              <button class="btn btn-outline" style="margin-top:8px;" onclick="switchAuth('login')">Voltar para o Login</button>
+            </div>
+          `;
+        } else {
+          html += `
+            <div class="sub-header">
+              <button class="icon-btn" onclick="switchAuth('login')">←</button>
+              <h2>Criar conta (Tela 2)</h2>
+              <span style="width:24px;"></span>
+            </div>
+            <div class="screen-body p-lg" style="background:#fff;">
+              ${state.authError ? `<div class="error-msg">${state.authError}</div>` : ''}
+              <div class="form-group">
+                <label class="form-label">Nome completo</label>
+                <div class="input-wrap"><span style="margin-right:8px;">👤</span><input id="reg-nome" placeholder="Ex: Raylson Oliveira" /></div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">E-mail</label>
+                <div class="input-wrap"><span style="margin-right:8px;">✉️</span><input id="reg-email" placeholder="seu@email.com" /></div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Telefone</label>
+                <div class="input-wrap"><span style="margin-right:8px;">📞</span><input id="reg-tel" placeholder="(85) 99999-9999" /></div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Senha (mín. 6 caracteres)</label>
+                <div class="input-wrap"><span style="margin-right:8px;">🔒</span><input id="reg-pass" type="password" placeholder="Crie uma senha" /></div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Confirmar senha</label>
+                <div class="input-wrap"><span style="margin-right:8px;">🔒</span><input id="reg-pass2" type="password" placeholder="Repita a senha" /></div>
+              </div>
+              <button class="btn btn-primary" onclick="handleRegister()">Cadastrar</button>
+              <div style="text-align:center;margin-top:14px;font-size:13px;color:#64748B;cursor:pointer;" onclick="switchAuth('login')">
+                Já tem uma conta? <b style="color:#00875F;">Entrar</b>
+              </div>
+            </div>
+          `;
+        }
+      } else {
+        // Usuário Logado -> Renderizar activeView ou currentTab
+        html += `<div class="screen-body">${renderLoggedContent()}</div>`;
+        if (state.activeView === 'tab') {
+          html += `
+            <div class="bottom-nav">
+              <button class="nav-item ${state.currentTab === 'mapa' ? 'active' : ''}" onclick="selectTab('mapa')">
+                <div class="nav-icon">🗺️</div><span>Mapa</span>
+              </button>
+              <button class="nav-item ${state.currentTab === 'reportar' ? 'active' : ''}" onclick="selectTab('reportar')">
+                <div class="nav-icon">➕</div><span>Reportar</span>
+              </button>
+              <button class="nav-item ${state.currentTab === 'rotas' ? 'active' : ''}" onclick="selectTab('rotas')">
+                <div class="nav-icon">🔀</div><span>Rotas</span>
+              </button>
+              <button class="nav-item ${state.currentTab === 'perfil' ? 'active' : ''}" onclick="selectTab('perfil')">
+                <div class="nav-icon">👤</div><span>Perfil</span>
+              </button>
+            </div>
+          `;
+        }
+      }
+
+      // Modal Tela 5: Auxílio por IA
+      if (state.aiModalSuggestion) {
+        const s = state.aiModalSuggestion;
+        html += `
+          <div class="modal-overlay">
+            <div class="modal-sheet">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                <span style="background:#EEF2FF;color:#4338CA;font-size:11px;font-weight:700;padding:4px 10px;border-radius:999px;">✨ Auxílio por IA (Tela 5 - NBR 9050)</span>
+                <button class="icon-btn" onclick="closeAiModal()">✕</button>
+              </div>
+              <h3 style="font-size:18px;font-weight:800;margin-bottom:4px;">Análise Inteligente do Relato</h3>
+              <p style="font-size:12px;color:#64748B;margin-bottom:12px;">Classificação sugerida automaticamente com base na descrição:</p>
+              <div style="background:#F1F5F9;padding:12px;border-radius:10px;margin-bottom:10px;">
+                <div style="font-size:11px;font-weight:700;color:#64748B;">RESUMO DA ANÁLISE</div>
+                <div style="font-size:13px;margin-top:4px;">${s.resumo}</div>
+              </div>
+              <div style="display:flex;gap:8px;margin-bottom:10px;">
+                <div style="flex:1;background:#F1F5F9;padding:10px;border-radius:10px;">
+                  <div style="font-size:11px;color:#64748B;">Categoria Sugerida</div>
+                  <div style="font-size:14px;font-weight:800;color:#00875F;margin-top:2px;">${s.categoriaSugerida.toUpperCase()}</div>
+                </div>
+                <div style="flex:1;background:#F1F5F9;padding:10px;border-radius:10px;">
+                  <div style="font-size:11px;color:#64748B;">Gravidade</div>
+                  <div style="font-size:14px;font-weight:800;color:#DC2626;margin-top:2px;">${s.gravidade}</div>
+                </div>
+              </div>
+              <div style="background:#F0FDF4;border:1px solid #BBF7D0;padding:12px;border-radius:10px;margin-bottom:12px;">
+                <div style="font-size:11px;font-weight:700;color:#166534;">RECOMENDAÇÃO TÉCNICA (NBR 9050)</div>
+                <div style="font-size:13px;color:#15803D;margin-top:4px;">${s.recomendacao}</div>
+              </div>
+              <button class="btn btn-primary" onclick="confirmAiSuggestion()">Confirmar e Aplicar Sugestão</button>
+              <button class="btn btn-outline" onclick="closeAiModal()">Editar Manualmente</button>
+            </div>
+          </div>
+        `;
+      }
+
+      // Modal Tela 10: Chat Assistente IA
+      if (state.chatOpen) {
+        html += `
+          <div class="modal-overlay">
+            <div class="modal-sheet" style="height:85%;display:flex;flex-direction:column;">
+              <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:10px;border-bottom:1px solid #E2E8F0;">
+                <div>
+                  <div style="font-size:15px;font-weight:800;">🤖 Assistente AcessiMap</div>
+                  <div style="font-size:11px;color:#64748B;">Especialista em Acessibilidade Urbana • Fortaleza</div>
+                </div>
+                <button class="icon-btn" onclick="toggleChat(false)">✕</button>
+              </div>
+              <div style="flex:1;overflow-y:auto;padding:12px 0;display:flex;flex-direction:column;gap:8px;">
+                ${state.mensagensChat.map(m => `
+                  <div style="align-self:${m.remetente === 'usuario' ? 'flex-end' : 'flex-start'};max-width:82%;padding:10px 12px;border-radius:14px;font-size:13px;background:${m.remetente === 'usuario' ? '#00875F' : '#F1F5F9'};color:${m.remetente === 'usuario' ? '#fff' : '#0F172A'};">
+                    ${m.texto}
+                  </div>
+                `).join('')}
+              </div>
+              <div class="chip-row" style="margin-bottom:8px;">
+                <span class="chip" onclick="sendQuickChat('O que diz a NBR 9050 sobre rampas?')">NBR 9050 rampas?</span>
+                <span class="chip" onclick="sendQuickChat('Quais praias têm acessibilidade em Fortaleza?')">Praias acessíveis?</span>
+                <span class="chip" onclick="sendQuickChat('Como está a acessibilidade na UNIFOR?')">Campus UNIFOR?</span>
+              </div>
+              <div style="display:flex;gap:6px;">
+                <div class="input-wrap" style="flex:1;"><input id="chat-input" placeholder="Pergunte sobre acessibilidade..." /></div>
+                <button class="btn btn-primary" style="width:48px;margin-top:0;" onclick="sendChatInput()">➤</button>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      root.innerHTML = html;
+    }
+
+    function renderLoggedContent() {
+      // Sub-telas em pilha
+      if (state.activeView === 'new_point' || state.activeView === 'edit_point') {
+        const isEdit = state.activeView === 'edit_point';
+        const f = state.formPonto;
+        return `
+          <div class="sub-header">
+            <button class="icon-btn" onclick="backToMain()">←</button>
+            <h2>${isEdit ? 'Editar Ponto (RF07)' : 'Cadastrar Ponto (Tela 4)'}</h2>
+            <span style="width:24px;"></span>
+          </div>
+          <div class="p-lg" style="background:#fff;">
+            <div class="form-group">
+              <label class="form-label">Nome do Local ou Ponto</label>
+              <div class="input-wrap">
+                <input id="pt-titulo" value="${f.titulo}" oninput="state.formPonto.titulo = this.value" placeholder="Ex: Rampa de acesso ao Bloco B" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Tipo de Infraestrutura</label>
+              <div class="chip-row">
+                ${[
+                  {k:'rampa', l:'📐 Rampa'},
+                  {k:'calcada', l:'🚶 Calçada'},
+                  {k:'acesso', l:'🚪 Acesso'},
+                  {k:'predio', l:'🏛️ Prédio Público'}
+                ].map(t => `<span class="chip ${f.categoria === t.k ? 'active' : ''}" onclick="setFormPontoField('categoria','${t.k}')">${t.l}</span>`).join('')}
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Localização / Endereço em Fortaleza</label>
+              <div class="input-wrap">
+                <input id="pt-end" value="${f.endereco}" oninput="state.formPonto.endereco = this.value" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Estado de Acessibilidade</label>
+              <div class="chip-row">
+                <span class="chip ${f.estado === 'acessivel' ? 'active' : ''}" onclick="setFormPontoField('estado','acessivel')">🟢 Acessível</span>
+                <span class="chip ${f.estado === 'parcial' ? 'active' : ''}" onclick="setFormPontoField('estado','parcial')">🟡 Parcial</span>
+                <span class="chip ${f.estado === 'inacessivel' ? 'active' : ''}" onclick="setFormPontoField('estado','inacessivel')">🔴 Inacessível</span>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Nota de Avaliação (${f.nota} ★)</label>
+              <div style="font-size:26px;cursor:pointer;">
+                ${[1,2,3,4,5].map(n => `<span style="color:${n <= f.nota ? '#F59E0B' : '#CBD5E1'}" onclick="setFormPontoField('nota',${n})">★</span>`).join(' ')}
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Comentário / Descrição Técnica</label>
+              <textarea class="textarea-field" oninput="state.formPonto.comentario = this.value" placeholder="Ex: Rampa quebrada e calçada com buraco...">${f.comentario}</textarea>
+            </div>
+            <button class="btn btn-ai" onclick="triggerAiAnalysis()">✨ Auxílio por IA (Gemini / NBR 9050)</button>
+            <button class="btn btn-primary" onclick="savePonto()">${isEdit ? 'Salvar Alterações' : 'Salvar Ponto'}</button>
+          </div>
+        `;
+      }
+
+      if (state.activeView === 'point_detail') {
+        const p = state.pontos.find(x => x.id === state.selectedPointId) || state.pontos[0];
+        const isOwner = state.user && (p.criadoPorId === state.user.id || p.criadoPor === state.user.nome);
+        return `
+          <div class="sub-header">
+            <button class="icon-btn" onclick="backToMain()">←</button>
+            <h2>Detalhes e Status (Tela 6)</h2>
+            <span style="width:24px;"></span>
+          </div>
+          <div class="p-lg" style="background:#fff;">
+            <div style="height:110px;background:#E6F4EF;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;margin-bottom:12px;border:1px solid #A7F3D0;">
+              <span style="font-size:38px;">♿</span>
+              <span style="font-size:11px;font-weight:700;color:#00875F;">Registro Colaborativo • Fortaleza</span>
+            </div>
+            <h3 style="font-size:18px;font-weight:800;">${p.titulo}</h3>
+            <p style="font-size:12px;color:#64748B;margin:4px 0;">📍 ${p.endereco}</p>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin:10px 0;">
+              ${badgeHtml(p.estado)}
+              <span style="font-size:13px;font-weight:700;">⭐ ${p.nota.toFixed(1)} (${p.avaliacoesCount} avaliações)</span>
+            </div>
+            <div style="margin:12px 0;">
+              <div class="form-label">Recursos de Acessibilidade</div>
+              <div class="chip-row">
+                ${p.recursos.map(r => `<span class="chip">✓ ${r}</span>`).join('')}
+              </div>
+            </div>
+            <div style="background:#F1F5F9;padding:12px;border-radius:10px;margin:12px 0;">
+              <div style="display:flex;justify-content:space-between;font-size:11px;font-weight:700;margin-bottom:4px;">
+                <span>👤 ${p.criadoPor} ${isOwner ? '(Você)' : ''}</span>
+                <span style="color:#64748B;">${p.criadoEm}</span>
+              </div>
+              <p style="font-size:13px;color:#334155;">${p.comentario}</p>
+            </div>
+            <div style="background:#F8FAFC;border:1px solid #E2E8F0;padding:10px;border-radius:10px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;">
+              <span style="font-size:12px;font-weight:700;">Avaliar este local (RF09):</span>
+              <button class="btn btn-primary" style="width:auto;height:34px;padding:0 12px;margin:0;font-size:12px;" onclick="ratePoint('${p.id}')">⭐ +Avaliar 5★</button>
+            </div>
+            ${isOwner ? `
+              <div style="display:flex;gap:8px;">
+                <button class="btn btn-outline" style="flex:1;" onclick="openEditPoint('${p.id}')">✏️ Editar</button>
+                <button class="btn btn-danger" style="flex:1;" onclick="deletePoint('${p.id}')">🗑️ Excluir</button>
+              </div>
+            ` : `<div style="font-size:11px;color:#64748B;margin-bottom:8px;">🔒 Apenas o autor (${p.criadoPor}) pode editar ou excluir este ponto (RF08).</div>`}
+            <button class="btn btn-outline" style="border-color:#EF4444;color:#EF4444;" onclick="openReportForPoint('${p.endereco}')">⚠️ Reportar Problema neste Local</button>
+          </div>
+        `;
+      }
+
+      if (state.activeView === 'edit_ocorrencia') {
+        const f = state.formOco;
+        return `
+          <div class="sub-header">
+            <button class="icon-btn" onclick="backToMain()">←</button>
+            <h2>Editar Ocorrência (RF17)</h2>
+            <span style="width:24px;"></span>
+          </div>
+          <div class="p-lg" style="background:#fff;">
+            <div class="form-group">
+              <label class="form-label">Status da Ocorrência</label>
+              <div class="chip-row">
+                <span class="chip ${f.status === 'pendente' ? 'active' : ''}" onclick="setFormOcoField('status','pendente')">Pendente</span>
+                <span class="chip ${f.status === 'em_analise' ? 'active' : ''}" onclick="setFormOcoField('status','em_analise')">Em Análise</span>
+                <span class="chip ${f.status === 'resolvido' ? 'active' : ''}" onclick="setFormOcoField('status','resolvido')">Resolvido</span>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Descrição</label>
+              <textarea class="textarea-field" oninput="state.formOco.descricao = this.value">${f.descricao}</textarea>
+            </div>
+            <button class="btn btn-primary" onclick="saveOcorrencia()">Salvar Alterações</button>
+          </div>
+        `;
+      }
+
+      // Abas principais
+      if (state.currentTab === 'mapa') {
+        const filtrados = state.pontos.filter(p => {
+          const catOk = state.filtroCategoria === 'todos' || p.categoria === state.filtroCategoria;
+          const buscaOk = p.titulo.toLowerCase().includes(state.busca.toLowerCase()) || p.endereco.toLowerCase().includes(state.busca.toLowerCase());
+          return catOk && buscaOk;
+        });
+        const sel = state.pontos.find(x => x.id === state.selectedPointId) || filtrados[0];
+
+        return `
+          <div style="padding:8px 12px;background:#fff;border-bottom:1px solid #E2E8F0;">
+            <div class="input-wrap" style="height:38px;background:#F1F5F9;">
+              <span style="margin-right:6px;">🔍</span>
+              <input placeholder="Buscar pontos em Fortaleza..." value="${state.busca}" oninput="state.busca = this.value; render();" />
+            </div>
+          </div>
+          <div class="map-canvas">
+            <div class="street-h1"></div><div class="street-h2"></div>
+            <div class="street-v1"></div><div class="street-v2"></div>
+            <div class="street-diag"></div>
+            <span class="zone-tag" style="top:8%;left:52%;">Beira-Mar / Meireles</span>
+            <span class="zone-tag" style="top:24%;left:10%;">Centro / Iracema</span>
+            <span class="zone-tag" style="top:44%;left:48%;">Aldeota</span>
+            <span class="zone-tag" style="top:74%;left:54%;">Edson Queiroz / UNIFOR</span>
+            ${filtrados.map((p, idx) => {
+              const pos = projectCoords(p.latitude, p.longitude, idx);
+              const bg = p.estado === 'acessivel' ? '#10B981' : p.estado === 'parcial' ? '#F59E0B' : '#EF4444';
+              const ic = p.estado === 'acessivel' ? '♿' : p.estado === 'parcial' ? '⚠️' : '🚫';
+              return `<div class="marker ${sel && sel.id === p.id ? 'selected' : ''}" style="top:${pos.top};left:${pos.left};background:${bg};" onclick="selectMarker('${p.id}')">${ic}</div>`;
+            }).join('')}
+            <button class="fab" onclick="openNewPoint()">➕ Novo Ponto</button>
+          </div>
+          <div class="pills-bar">
+            ${[
+              {k:'todos', l:'Todos'},
+              {k:'rampa', l:'Rampas'},
+              {k:'calcada', l:'Calçadas'},
+              {k:'acesso', l:'Acessos'},
+              {k:'predio', l:'Locais'}
+            ].map(f => `<span class="pill ${state.filtroCategoria === f.k ? 'active' : ''}" onclick="setFilter('${f.k}')">${f.l}</span>`).join('')}
+          </div>
+          <div style="padding:12px;background:#fff;">
+            ${sel ? `
+              <div style="border:1.5px solid #E6F4EF;border-radius:12px;padding:12px;cursor:pointer;" onclick="openPointDetail('${sel.id}')">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+                  <div style="font-size:14px;font-weight:800;">${sel.titulo}</div>
+                  ${badgeHtml(sel.estado)}
+                </div>
+                <div style="font-size:11px;color:#64748B;margin:4px 0;">📍 ${sel.endereco}</div>
+                <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:700;margin-top:6px;padding-top:6px;border-top:1px solid #E2E8F0;">
+                  <span>⭐ ${sel.nota.toFixed(1)} (${sel.avaliacoesCount} avaliações)</span>
+                  <span style="color:#00875F;">Ver detalhes / Editar →</span>
+                </div>
+              </div>
+            ` : `<div style="text-align:center;font-size:12px;color:#64748B;">Nenhum ponto para este filtro.</div>`}
+          </div>
+        `;
+      }
+
+      if (state.currentTab === 'reportar') {
+        const f = state.formOco;
+        return `
+          <div class="sub-header">
+            <h2>Reportar Ocorrência (Tela 7 / CRUD 2)</h2>
+          </div>
+          <div class="p-lg" style="background:#fff;">
+            <div class="form-group">
+              <label class="form-label">Tipo de ocorrência</label>
+              <div class="chip-row">
+                ${[
+                  {k:'rampa', l:'📐 Rampa Danificada'},
+                  {k:'calcada', l:'🚶 Calçada Obstruída'},
+                  {k:'predio', l:'🏛️ Prédio sem Acesso'},
+                  {k:'outro', l:'📍 Outro'}
+                ].map(t => `<span class="chip ${f.tipo === t.k ? 'active' : ''}" onclick="setFormOcoField('tipo','${t.k}')">${t.l}</span>`).join('')}
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Localização em Fortaleza</label>
+              <div class="input-wrap">
+                <input value="${f.endereco}" oninput="state.formOco.endereco = this.value" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Descrição do Problema</label>
+              <textarea class="textarea-field" oninput="state.formOco.descricao = this.value" placeholder="Descreva o obstáculo ou barreira urbana...">${f.descricao}</textarea>
+            </div>
+            <button class="btn btn-primary" onclick="saveOcorrencia()">Enviar Ocorrência</button>
+          </div>
+        `;
+      }
+
+      if (state.currentTab === 'rotas') {
+        const orig = state.pontos[state.origemIdx % state.pontos.length];
+        const dest = state.pontos[state.destinoIdx % state.pontos.length];
+        const ocoAtivas = state.ocorrencias.filter(o => o.status !== 'resolvido').length;
+        return `
+          <div class="sub-header">
+            <h2>Rota Segura (Tela 9 / RF14)</h2>
+          </div>
+          <div class="p-lg" style="background:#fff;">
+            <div style="background:#F1F5F9;padding:12px;border-radius:12px;margin-bottom:14px;">
+              <div style="font-size:11px;color:#64748B;">● Ponto de Partida (clique para alternar)</div>
+              <div style="font-size:13px;font-weight:800;color:#00875F;cursor:pointer;margin:2px 0 10px 0;" onclick="cycleOrigem()">${orig.titulo} ▾</div>
+              <div style="font-size:11px;color:#64748B;">📍 Destino Acessível (clique para alternar)</div>
+              <div style="font-size:13px;font-weight:800;color:#00875F;cursor:pointer;margin-top:2px;" onclick="cycleDestino()">${dest.titulo} ▾</div>
+            </div>
+            <div style="border:1.5px solid #E6F4EF;border-radius:14px;padding:14px;margin-bottom:14px;">
+              <div style="font-size:17px;font-weight:800;">Trajeto acessível</div>
+              <div style="font-size:13px;color:#64748B;margin-bottom:12px;">1,2 km · 15 min</div>
+              <div style="display:flex;justify-content:space-between;background:#F1F5F9;padding:9px 12px;border-radius:8px;margin-bottom:6px;font-size:13px;font-weight:600;">
+                <span>✓ Rampas mapeadas</span><b style="color:#00875F;">${state.pontos.length}</b>
+              </div>
+              <div style="display:flex;justify-content:space-between;background:#F1F5F9;padding:9px 12px;border-radius:8px;margin-bottom:6px;font-size:13px;font-weight:600;">
+                <span>✓ Calçadas adaptadas</span><b style="color:#00875F;">5</b>
+              </div>
+              <div style="display:flex;justify-content:space-between;background:#F1F5F9;padding:9px 12px;border-radius:8px;font-size:13px;font-weight:600;">
+                <span>✓ Ocorrências desviadas</span><b style="color:#00875F;">${ocoAtivas}</b>
+              </div>
+            </div>
+            <button class="btn btn-primary" onclick="state.rotaIniciada=true; render(); alert('Navegação acessível iniciada!');">
+              ${state.rotaIniciada ? '♿ Rota em Andamento' : '🚀 Iniciar rota'}
+            </button>
+          </div>
+        `;
+      }
+
+      if (state.currentTab === 'perfil') {
+        const u = state.user;
+        const meusPts = state.pontos.filter(p => p.criadoPorId === u.id || p.criadoPor === u.nome);
+        return `
+          <div class="p-lg" style="background:#fff;">
+            <div style="text-align:center;margin-bottom:14px;">
+              <div style="width:72px;height:72px;border-radius:50%;background:#F1F5F9;border:2px solid #00875F;display:inline-flex;align-items:center;justify-content:center;font-size:34px;margin-bottom:6px;">👤</div>
+              <div style="font-size:17px;font-weight:800;">${u.nome}</div>
+              <div style="font-size:13px;color:#64748B;">${u.handle}</div>
+              <div style="font-size:11px;color:#94A3B8;">${u.email}</div>
+            </div>
+            <div style="display:flex;background:#F1F5F9;border-radius:10px;padding:10px;text-align:center;margin-bottom:14px;">
+              <div style="flex:1;"><div style="font-size:16px;font-weight:800;color:#00875F;">${meusPts.length}</div><div style="font-size:11px;color:#64748B;">Meus Pontos</div></div>
+              <div style="flex:1;"><div style="font-size:16px;font-weight:800;color:#00875F;">${state.ocorrencias.length}</div><div style="font-size:11px;color:#64748B;">Ocorrências</div></div>
+              <div style="flex:1;"><div style="font-size:16px;font-weight:800;color:#00875F;">${state.pontos.length}</div><div style="font-size:11px;color:#64748B;">Total Mapa</div></div>
+            </div>
+
+            <div style="border-top:1px solid #E2E8F0;padding:12px 0;cursor:pointer;font-weight:700;font-size:14px;display:flex;justify-content:space-between;" onclick="state.editProfileOpen=!state.editProfileOpen;render();">
+              <span>✏️ Editar perfil (RF04)</span><span>${state.editProfileOpen ? '▼' : '›'}</span>
+            </div>
+            ${state.editProfileOpen ? `
+              <div style="background:#F1F5F9;padding:10px;border-radius:10px;margin-bottom:10px;">
+                <div class="input-wrap" style="margin-bottom:6px;"><input id="prof-nome" value="${u.nome}" /></div>
+                <div class="input-wrap" style="margin-bottom:6px;"><input id="prof-handle" value="${u.handle}" /></div>
+                <button class="btn btn-primary" style="height:36px;font-size:13px;" onclick="saveProfile()">Salvar Perfil</button>
+              </div>
+            ` : ''}
+
+            <div style="border-top:1px solid #E2E8F0;padding:12px 0;cursor:pointer;font-weight:700;font-size:14px;display:flex;justify-content:space-between;" onclick="state.showMeusReportes=!state.showMeusReportes;render();">
+              <span>⚠️ Minhas ocorrências (${state.ocorrencias.length})</span><span>${state.showMeusReportes ? '▼' : '›'}</span>
+            </div>
+            ${state.showMeusReportes ? `
+              <div style="background:#F1F5F9;padding:10px;border-radius:10px;display:flex;flex-direction:column;gap:8px;">
+                ${state.ocorrencias.map(o => `
+                  <div style="background:#fff;padding:8px 10px;border-radius:8px;display:flex;align-items:center;justify-content:space-between;border:1px solid #E2E8F0;">
+                    <div style="flex:1;">
+                      <div style="display:flex;gap:6px;align-items:center;">
+                        <b style="font-size:11px;color:#00875F;">${o.tipo.toUpperCase()}</b>
+                        ${badgeHtml(o.status)}
+                      </div>
+                      <div style="font-size:12px;margin:2px 0;">${o.descricao}</div>
+                      <div style="font-size:10px;color:#64748B;">📍 ${o.endereco}</div>
+                    </div>
+                    <button class="icon-btn" onclick="openEditOco('${o.id}')">✏️</button>
+                    <button class="icon-btn" onclick="deleteOco('${o.id}')">🗑️</button>
+                  </div>
+                `).join('')}
+              </div>
+            ` : ''}
+
+            <button class="btn btn-outline" style="border-color:#EF4444;color:#EF4444;margin-top:20px;" onclick="handleLogout()">Sair da Conta</button>
+          </div>
+        `;
+      }
+    }
+
+    // Handlers
+    function handleLogin() {
+      const email = document.getElementById('login-email').value.trim().toLowerCase();
+      const pass = document.getElementById('login-pass').value;
+      const found = state.accounts.find(a => a.email.toLowerCase() === email && a.pass === pass);
+      if (!found) {
+        state.authError = 'E-mail ou senha incorretos. Tente raylsonsoaresdeoliveira@gmail.com / 123456.';
+        render();
+        return;
+      }
+      state.authError = '';
+      state.user = { ...found };
+      render();
+    }
+
+    function handleRegister() {
+      const nome = document.getElementById('reg-nome').value.trim();
+      const email = document.getElementById('reg-email').value.trim().toLowerCase();
+      const tel = document.getElementById('reg-tel').value.trim();
+      const pass = document.getElementById('reg-pass').value;
+      const pass2 = document.getElementById('reg-pass2').value;
+      if (!nome || !email || !pass) { state.authError = 'Preencha nome, e-mail e senha.'; render(); return; }
+      if (pass.length < 6) { state.authError = 'A senha deve ter pelo menos 6 caracteres.'; render(); return; }
+      if (pass !== pass2) { state.authError = 'A confirmação de senha não confere.'; render(); return; }
+      const newAcc = { id: 'usr-' + Date.now(), nome, email, telefone: tel, handle: '@' + nome.toLowerCase().replace(/\s+/g,'_'), pass };
+      state.accounts.push(newAcc);
+      state.user = newAcc;
+      state.authError = '';
+      render();
+    }
+
+    function switchAuth(flow) { state.authFlow = flow; state.authError = ''; state.recoverySuccess = ''; render(); }
+    function handleRecovery() {
+      const email = document.getElementById('rec-email').value.trim().toLowerCase();
+      const newPass = document.getElementById('rec-pass').value.trim();
+      if (!email) { state.authError = 'Informe o e-mail da conta.'; render(); return; }
+      if (newPass.length < 6) { state.authError = 'A nova senha deve ter pelo menos 6 caracteres.'; render(); return; }
+      const idx = state.accounts.findIndex(a => a.email.toLowerCase() === email);
+      if (idx === -1) { state.authError = 'Nenhuma conta encontrada com este e-mail.'; render(); return; }
+      state.accounts[idx].pass = newPass;
+      state.authError = '';
+      state.recoverySuccess = 'Senha redefinida com sucesso! Nova senha: ' + newPass;
+      render();
+    }
+    function handleLogout() { state.user = null; state.activeView = 'tab'; state.currentTab = 'mapa'; render(); }
+    function selectTab(tab) { state.currentTab = tab; state.activeView = 'tab'; render(); }
+    function setFilter(f) { state.filtroCategoria = f; render(); }
+    function selectMarker(id) { state.selectedPointId = id; render(); }
+    function openPointDetail(id) { state.selectedPointId = id; state.activeView = 'point_detail'; render(); }
+    function backToMain() { state.activeView = 'tab'; render(); }
+
+    function openNewPoint() {
+      state.formPonto = {
+        titulo: '',
+        categoria: 'rampa',
+        endereco: 'Av. Washington Soares, Fortaleza - CE',
+        latitude: -3.74 + (Math.random() - 0.5) * 0.03,
+        longitude: -38.50 + (Math.random() - 0.5) * 0.03,
+        estado: 'acessivel',
+        nota: 5,
+        comentario: ''
+      };
+      state.editingPoint = null;
+      state.activeView = 'new_point';
+      render();
+    }
+
+    function openEditPoint(id) {
+      const p = state.pontos.find(x => x.id === id);
+      if (!p) return;
+      state.editingPoint = p;
+      state.formPonto = { ...p };
+      state.activeView = 'edit_point';
+      render();
+    }
+
+    function setFormPontoField(k, v) { state.formPonto[k] = v; render(); }
+    function setFormOcoField(k, v) { state.formOco[k] = v; render(); }
+
+    function triggerAiAnalysis() {
+      const relato = (state.formPonto.titulo + ' ' + state.formPonto.comentario).trim();
+      if (!relato) { alert('Escreva o título ou comentário primeiro para a IA analisar!'); return; }
+      state.aiModalSuggestion = analisarRelatoIA(relato);
+      render();
+    }
+
+    function confirmAiSuggestion() {
+      if (state.aiModalSuggestion) {
+        state.formPonto.categoria = state.aiModalSuggestion.categoriaSugerida;
+        state.formPonto.estado = state.aiModalSuggestion.classificacaoSugerida;
+      }
+      state.aiModalSuggestion = null;
+      render();
+    }
+
+    function closeAiModal() { state.aiModalSuggestion = null; render(); }
+
+    function savePonto() {
+      const f = state.formPonto;
+      if (!f.titulo.trim()) { alert('Informe um nome para o ponto!'); return; }
+      if (state.activeView === 'edit_point' && state.editingPoint) {
+        state.pontos = state.pontos.map(p => p.id === state.editingPoint.id ? { ...p, ...f } : p);
+        state.activeView = 'point_detail';
+      } else {
+        const novo = {
+          ...f,
+          id: 'ponto-' + Date.now(),
+          comentario: f.comentario || 'Cadastro colaborativo de acessibilidade.',
+          recursos: [f.categoria === 'rampa' ? 'Rampa Padronizada' : 'Piso Tátil', f.estado === 'acessivel' ? 'Livre de Barreiras' : 'Atenção ao Piso'],
+          avaliacoesCount: 1,
+          criadoPor: state.user.nome,
+          criadoPorId: state.user.id,
+          criadoEm: '2026-11-09'
+        };
+        state.pontos.unshift(novo);
+        state.selectedPointId = novo.id;
+        state.activeView = 'tab';
+        state.currentTab = 'mapa';
+      }
+      render();
+    }
+
+    function deletePoint(id) {
+      if (!confirm('Deseja realmente excluir este ponto?')) return;
+      state.pontos = state.pontos.filter(p => p.id !== id);
+      state.activeView = 'tab';
+      render();
+    }
+
+    function ratePoint(id) {
+      state.pontos = state.pontos.map(p => {
+        if (p.id !== id) return p;
+        const novoCount = p.avaliacoesCount + 1;
+        const novaMedia = Number(((p.nota * p.avaliacoesCount + 5) / novoCount).toFixed(1));
+        return { ...p, nota: novaMedia, avaliacoesCount: novoCount };
+      });
+      render();
+    }
+
+    function openReportForPoint(endereco) {
+      state.formOco = { tipo: 'calcada', endereco, descricao: '', status: 'pendente' };
+      state.editingOcorrencia = null;
+      state.activeView = 'tab';
+      state.currentTab = 'reportar';
+      render();
+    }
+
+    function openEditOco(id) {
+      const o = state.ocorrencias.find(x => x.id === id);
+      if (!o) return;
+      state.editingOcorrencia = o;
+      state.formOco = { ...o };
+      state.activeView = 'edit_ocorrencia';
+      render();
+    }
+
+    function saveOcorrencia() {
+      const f = state.formOco;
+      if (!f.descricao.trim()) { alert('Descreva o problema!'); return; }
+      if (state.activeView === 'edit_ocorrencia' && state.editingOcorrencia) {
+        state.ocorrencias = state.ocorrencias.map(o => o.id === state.editingOcorrencia.id ? { ...o, ...f } : o);
+        state.activeView = 'tab';
+        state.currentTab = 'perfil';
+      } else {
+        state.ocorrencias.unshift({
+          ...f,
+          id: 'oco-' + Date.now(),
+          criadoPor: state.user.nome,
+          criadoPorId: state.user.id,
+          criadoEm: '2026-11-09'
+        });
+        state.formOco = { tipo: 'rampa', endereco: 'Fortaleza - CE', descricao: '', status: 'pendente' };
+        state.activeView = 'tab';
+        state.currentTab = 'mapa';
+        alert('Ocorrência registrada com sucesso!');
+      }
+      render();
+    }
+
+    function deleteOco(id) {
+      state.ocorrencias = state.ocorrencias.filter(o => o.id !== id);
+      render();
+    }
+
+    function saveProfile() {
+      const n = document.getElementById('prof-nome').value.trim();
+      const h = document.getElementById('prof-handle').value.trim();
+      if (n) state.user.nome = n;
+      if (h) state.user.handle = h.startsWith('@') ? h : '@' + h;
+      state.editProfileOpen = false;
+      render();
+    }
+
+    function cycleOrigem() { state.origemIdx = (state.origemIdx + 1) % state.pontos.length; render(); }
+    function cycleDestino() { state.destinoIdx = (state.destinoIdx + 1) % state.pontos.length; render(); }
+
+    function toggleChat(open) { state.chatOpen = open; render(); }
+    function sendQuickChat(q) {
+      state.mensagensChat.push({ remetente: 'usuario', texto: q, horario: 'Agora' });
+      state.mensagensChat.push({ remetente: 'ia', texto: responderChatIA(q), horario: 'Agora' });
+      render();
+    }
+    function sendChatInput() {
+      const el = document.getElementById('chat-input');
+      if (!el || !el.value.trim()) return;
+      sendQuickChat(el.value.trim());
+    }
+
+    render();
+  </script>
+</body>
+</html>
