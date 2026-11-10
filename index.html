@@ -8,6 +8,8 @@
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="theme-color" content="#00875F" />
   <title>AcessiMap Fortaleza</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <style>
     :root {
       --primary: #00875F;
@@ -792,6 +794,7 @@
       }
 
       root.innerHTML = html;
+      initLeafletMapIfNeeded();
     }
 
     function renderLoggedContent() {
@@ -943,21 +946,14 @@
               <input placeholder="Buscar pontos em Fortaleza..." value="${state.busca}" oninput="state.busca = this.value; render();" />
             </div>
           </div>
-          <div class="map-canvas">
-            <div class="street-h1"></div><div class="street-h2"></div>
-            <div class="street-v1"></div><div class="street-v2"></div>
-            <div class="street-diag"></div>
-            <span class="zone-tag" style="top:8%;left:52%;">Beira-Mar / Meireles</span>
-            <span class="zone-tag" style="top:24%;left:10%;">Centro / Iracema</span>
-            <span class="zone-tag" style="top:44%;left:48%;">Aldeota</span>
-            <span class="zone-tag" style="top:74%;left:54%;">Edson Queiroz / UNIFOR</span>
-            ${filtrados.map((p, idx) => {
-              const pos = projectCoords(p.latitude, p.longitude, idx);
-              const bg = p.estado === 'acessivel' ? '#10B981' : p.estado === 'parcial' ? '#F59E0B' : '#EF4444';
-              const ic = p.estado === 'acessivel' ? '♿' : p.estado === 'parcial' ? '⚠️' : '🚫';
-              return `<div class="marker ${sel && sel.id === p.id ? 'selected' : ''}" style="top:${pos.top};left:${pos.left};background:${bg};" onclick="selectMarker('${p.id}')">${ic}</div>`;
-            }).join('')}
-            <button class="fab" onclick="openNewPoint()">➕ Novo Ponto</button>
+          <div class="map-canvas" style="position:relative;flex:1;min-height:290px;">
+            <div id="real-leaflet-map" style="width:100%;height:100%;z-index:1;"></div>
+            <div style="position:absolute;top:10px;right:10px;z-index:400;display:flex;flex-direction:column;gap:6px;">
+              <button onclick="zoomMap(1)" style="width:36px;height:36px;border-radius:10px;border:1px solid #CBD5E1;background:#fff;font-size:18px;font-weight:800;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,0.2);">+</button>
+              <button onclick="zoomMap(-1)" style="width:36px;height:36px;border-radius:10px;border:1px solid #CBD5E1;background:#fff;font-size:18px;font-weight:800;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,0.2);">−</button>
+              <button onclick="resetMapCenter()" title="Centralizar em Fortaleza" style="width:36px;height:36px;border-radius:10px;border:1px solid #CBD5E1;background:#fff;font-size:15px;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,0.2);">🎯</button>
+            </div>
+            <button class="fab" style="z-index:400;" onclick="openNewPoint()">➕ Novo Ponto</button>
           </div>
           <div class="pills-bar">
             ${[
@@ -1316,6 +1312,86 @@
       const el = document.getElementById('chat-input');
       if (!el || !el.value.trim()) return;
       sendQuickChat(el.value.trim());
+    }
+
+    let leafletMap = null;
+    let mapCenter = [-3.742, -38.502];
+    let mapZoom = 12;
+
+    function initLeafletMapIfNeeded() {
+      const container = document.getElementById('real-leaflet-map');
+      if (!container || typeof L === 'undefined') return;
+
+      if (leafletMap) {
+        try {
+          mapCenter = [leafletMap.getCenter().lat, leafletMap.getCenter().lng];
+          mapZoom = leafletMap.getZoom();
+          leafletMap.remove();
+        } catch (e) {}
+        leafletMap = null;
+      }
+
+      leafletMap = L.map(container, {
+        zoomControl: false,
+        attributionControl: false,
+        dragging: true,
+        touchZoom: true,
+        scrollWheelZoom: true,
+        doubleClickZoom: true
+      }).setView(mapCenter, mapZoom);
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19
+      }).addTo(leafletMap);
+
+      const filtrados = state.pontos.filter(p => {
+        const catOk = state.filtroCategoria === 'todos' || p.categoria === state.filtroCategoria;
+        const buscaOk = p.titulo.toLowerCase().includes(state.busca.toLowerCase()) || p.endereco.toLowerCase().includes(state.busca.toLowerCase());
+        return catOk && buscaOk;
+      });
+
+      const sel = state.pontos.find(x => x.id === state.selectedPointId) || filtrados[0];
+
+      filtrados.forEach(p => {
+        const isSel = sel && sel.id === p.id;
+        const bg = p.estado === 'acessivel' ? '#10B981' : p.estado === 'parcial' ? '#F59E0B' : '#EF4444';
+        const ic = p.estado === 'acessivel' ? '♿' : p.estado === 'parcial' ? '⚠️' : '🚫';
+        const size = isSel ? 44 : 36;
+        const border = isSel ? '3px solid #0F172A' : '2.5px solid #FFFFFF';
+
+        const icon = L.divIcon({
+          className: 'custom-leaflet-marker',
+          html: `<div style="width:${size}px;height:${size}px;border-radius:50%;background:${bg};border:${border};display:flex;align-items:center;justify-content:center;font-size:${isSel ? 20 : 16}px;box-shadow:0 3px 8px rgba(0,0,0,0.35);transition:transform 0.15s;">${ic}</div>`,
+          iconSize: [size, size],
+          iconAnchor: [size / 2, size / 2]
+        });
+
+        const marker = L.marker([p.latitude, p.longitude], { icon }).addTo(leafletMap);
+        marker.on('click', () => {
+          state.selectedPointId = p.id;
+          mapCenter = [p.latitude, p.longitude];
+          render();
+        });
+      });
+
+      setTimeout(() => {
+        if (leafletMap) leafletMap.invalidateSize();
+      }, 60);
+    }
+
+    function zoomMap(delta) {
+      if (leafletMap) {
+        leafletMap.setZoom(leafletMap.getZoom() + delta);
+        mapZoom = leafletMap.getZoom();
+      }
+    }
+
+    function resetMapCenter() {
+      mapCenter = [-3.742, -38.502];
+      mapZoom = 12;
+      if (leafletMap) {
+        leafletMap.setView(mapCenter, mapZoom);
+      }
     }
 
     render();

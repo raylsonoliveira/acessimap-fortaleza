@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Abrir AcessiMap Fortaleza no Celular — QR Code</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body {
+      background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+      color: #F8FAFC;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .header h1 { font-size: 26px; font-weight: 800; color: #10B981; margin-bottom: 6px; }
+    .header p { font-size: 15px; color: #CBD5E1; }
+    .grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 24px;
+      max-width: 920px;
+      width: 100%;
+      justify-content: center;
+    }
+    .card {
+      background: #FFFFFF;
+      color: #0F172A;
+      border-radius: 22px;
+      padding: 26px;
+      flex: 1;
+      min-width: 340px;
+      max-width: 440px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.45);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      border: 3px solid #10B981;
+    }
+    .card.secondary {
+      border-color: #4F46E5;
+    }
+    .tag {
+      background: #D1FAE5;
+      color: #065F46;
+      font-size: 12px;
+      font-weight: 800;
+      padding: 5px 14px;
+      border-radius: 999px;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+    }
+    .card.secondary .tag {
+      background: #E0E7FF;
+      color: #3730A3;
+    }
+    .card h2 { font-size: 20px; font-weight: 800; margin-bottom: 8px; }
+    .card p { font-size: 13px; color: #475569; line-height: 1.5; margin-bottom: 16px; }
+    .qr-box {
+      background: #F8FAFC;
+      padding: 14px;
+      border-radius: 16px;
+      border: 2px dashed #CBD5E1;
+      margin-bottom: 16px;
+    }
+    .qr-box img {
+      width: 220px;
+      height: 220px;
+      display: block;
+    }
+    .url-pill {
+      background: #F1F5F9;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-family: monospace;
+      font-size: 13px;
+      font-weight: 700;
+      color: #0F172A;
+      word-break: break-all;
+      width: 100%;
+      margin-bottom: 12px;
+      border: 1px solid #E2E8F0;
+    }
+    .steps {
+      text-align: left;
+      font-size: 13px;
+      color: #334155;
+      background: #F8FAFC;
+      padding: 12px 16px;
+      border-radius: 12px;
+      width: 100%;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>📱 Abrir AcessiMap Fortaleza no seu Celular</h1>
+    <p>Aponte a câmera do seu celular para qualquer um dos QR Codes abaixo!</p>
+  </div>
+
+  <div class="grid">
+    <!-- OPÇÃO 1: DIRETO NO CELULAR (FUNCIONA EM QUALQUER REDE 4G/5G/WIFI) -->
+    <div class="card">
+      <span class="tag">⭐ Mais Fácil — Funciona em 4G/5G ou Wi-Fi</span>
+      <h2>Opção 1: Abrir Direto pela Câmera</h2>
+      <p>Abre o aplicativo em tela cheia no seu celular instantaneamente, sem precisar configurar Wi-Fi e sem travar!</p>
+      <div class="qr-box">
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=https://raylsonoliveira.github.io/acessimap-fortaleza/" alt="QR Code Web App Mobile" />
+      </div>
+      <div class="url-pill">https://raylsonoliveira.github.io/acessimap-fortaleza/</div>
+      <div class="steps">
+        <b>Como usar na apresentação:</b><br/>
+        1. Aponte a <b>Câmera normal</b> do celular para este QR Code.<br/>
+        2. Toque no link que aparecer na tela.<br/>
+        3. Dica: No menu do navegador do celular, toque em <b>"Adicionar à Tela Inicial"</b> para ele virar um ícone de App no seu celular!
+      </div>
+    </div>
+
+    <!-- OPÇÃO 2: EXPO GO (REDE WI-FI LOCAL) -->
+    <div class="card secondary">
+      <span class="tag">📲 Pelo Aplicativo Expo Go (Mesmo Wi-Fi)</span>
+      <h2>Opção 2: Abrir no App Expo Go</h2>
+      <p>Conecta no servidor React Native rodando agora no seu computador (IP: 10.80.86.197).</p>
+      <div class="qr-box">
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=exp://10.80.86.197:8085" alt="QR Code Expo Go" />
+      </div>
+      <div class="url-pill">exp://10.80.86.197:8085</div>
+      <div class="steps">
+        <b>Como usar no Expo Go:</b><br/>
+        1. Abra o app <b>Expo Go</b> no celular.<br/>
+        2. Toque em <b>Scan QR Code</b> (ou digite <code>exp://10.80.86.197:8085</code> em "Enter URL manually").<br/>
+        3. Certifique-se de que o celular está no mesmo Wi-Fi do PC.
+      </div>
+    </div>
+  </div>
+</body>
+</html>

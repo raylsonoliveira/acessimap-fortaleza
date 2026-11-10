@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   ScrollView,
   TextInput,
+  PanResponder,
 } from 'react-native';
 import { COLORS, SPACING, RADIUS } from '../theme';
 import { useData } from '../context/DataContext';
@@ -59,6 +60,71 @@ export const MapScreen: React.FC<MapScreenProps> = ({
   } = useData();
   const [busca, setBusca] = useState('');
 
+  // Estado interativo de Zoom (Ampliar/Reduzir) e Pan (Arrastar o mapa)
+  const [zoomScale, setZoomScale] = useState(1);
+  const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
+  const lastOffset = useRef({ x: 0, y: 0 });
+  const initialPinchDist = useRef<number | null>(null);
+  const initialZoom = useRef(1);
+
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponder: (_, gesture) =>
+        Math.abs(gesture.dx) > 3 || Math.abs(gesture.dy) > 3,
+      onPanResponderGrant: evt => {
+        if (evt.nativeEvent.touches && evt.nativeEvent.touches.length === 2) {
+          const [t1, t2] = evt.nativeEvent.touches;
+          initialPinchDist.current = Math.hypot(
+            t2.pageX - t1.pageX,
+            t2.pageY - t1.pageY
+          );
+          initialZoom.current = zoomScale;
+        } else {
+          initialPinchDist.current = null;
+        }
+      },
+      onPanResponderMove: (evt, gesture) => {
+        if (
+          evt.nativeEvent.touches &&
+          evt.nativeEvent.touches.length === 2 &&
+          initialPinchDist.current
+        ) {
+          const [t1, t2] = evt.nativeEvent.touches;
+          const dist = Math.hypot(t2.pageX - t1.pageX, t2.pageY - t1.pageY);
+          const ratio = dist / initialPinchDist.current;
+          const nextZoom = Math.min(3.2, Math.max(0.8, Number((initialZoom.current * ratio).toFixed(2))));
+          setZoomScale(nextZoom);
+          return;
+        }
+        const nextX = Math.min(180, Math.max(-180, lastOffset.current.x + gesture.dx));
+        const nextY = Math.min(180, Math.max(-180, lastOffset.current.y + gesture.dy));
+        setPanOffset({ x: nextX, y: nextY });
+      },
+      onPanResponderRelease: (_, gesture) => {
+        lastOffset.current = {
+          x: Math.min(180, Math.max(-180, lastOffset.current.x + gesture.dx)),
+          y: Math.min(180, Math.max(-180, lastOffset.current.y + gesture.dy)),
+        };
+        initialPinchDist.current = null;
+      },
+    })
+  ).current;
+
+  function handleZoomIn() {
+    setZoomScale(prev => Math.min(3.2, Number((prev + 0.35).toFixed(2))));
+  }
+
+  function handleZoomOut() {
+    setZoomScale(prev => Math.max(0.8, Number((prev - 0.35).toFixed(2))));
+  }
+
+  function handleResetMap() {
+    setZoomScale(1);
+    setPanOffset({ x: 0, y: 0 });
+    lastOffset.current = { x: 0, y: 0 };
+  }
+
   const displayedPontos = pontosFiltrados.filter(
     p =>
       p.titulo.toLowerCase().includes(busca.toLowerCase()) ||
@@ -90,62 +156,103 @@ export const MapScreen: React.FC<MapScreenProps> = ({
         </View>
       </View>
 
-      {/* Área do Mapa Visual Interativo de Fortaleza */}
-      <View style={styles.mapCanvas}>
-        {/* Malha viária de Fortaleza */}
-        <View style={styles.streetGridHorizontal1} />
-        <View style={styles.streetGridHorizontal2} />
-        <View style={styles.streetGridVertical1} />
-        <View style={styles.streetGridVertical2} />
-        <View style={styles.diagonalStreet} />
+      {/* Área do Mapa Visual Interativo de Fortaleza (Suporta Arrastar + Pinça + Zoom +/-) */}
+      <View style={styles.mapCanvas} {...panResponder.panHandlers}>
+        <View
+          style={[
+            styles.interactiveMapSurface,
+            {
+              transform: [
+                { translateX: panOffset.x },
+                { translateY: panOffset.y },
+                { scale: zoomScale },
+              ],
+            },
+          ]}
+        >
+          {/* Malha viária de Fortaleza */}
+          <View style={styles.streetGridHorizontal1} />
+          <View style={styles.streetGridHorizontal2} />
+          <View style={styles.streetGridVertical1} />
+          <View style={styles.streetGridVertical2} />
+          <View style={styles.diagonalStreet} />
 
-        {/* Rótulos geográficos de referência */}
-        <Text style={[styles.zoneLabel, { top: '8%', left: '54%' }]}>Beira-Mar / Meireles</Text>
-        <Text style={[styles.zoneLabel, { top: '24%', left: '12%' }]}>Centro / Iracema</Text>
-        <Text style={[styles.zoneLabel, { top: '42%', left: '48%' }]}>Aldeota</Text>
-        <Text style={[styles.zoneLabel, { top: '74%', left: '58%' }]}>Edson Queiroz / UNIFOR</Text>
+          {/* Rótulos geográficos de referência */}
+          <Text style={[styles.zoneLabel, { top: '8%', left: '54%' }]}>Beira-Mar / Meireles</Text>
+          <Text style={[styles.zoneLabel, { top: '24%', left: '12%' }]}>Centro / Iracema</Text>
+          <Text style={[styles.zoneLabel, { top: '42%', left: '48%' }]}>Aldeota</Text>
+          <Text style={[styles.zoneLabel, { top: '74%', left: '58%' }]}>Edson Queiroz / UNIFOR</Text>
+
+          {/* Marcadores dos Pontos Projetados por Latitude e Longitude */}
+          {displayedPontos.map((ponto, index) => {
+            const isSelected = pontoSelecionado?.id === ponto.id;
+            let markerColor = COLORS.accessible;
+            let icon = '♿';
+
+            if (ponto.estado === 'parcial') {
+              markerColor = COLORS.partial;
+              icon = '⚠️';
+            } else if (ponto.estado === 'inacessivel') {
+              markerColor = COLORS.inaccessible;
+              icon = '🚫';
+            } else if (ponto.categoria === 'rampa') {
+              markerColor = COLORS.accent;
+              icon = '📐';
+            }
+
+            const pos = projectCoordinatesToMap(ponto.latitude, ponto.longitude, index);
+
+            return (
+              <TouchableOpacity
+                key={ponto.id}
+                style={[
+                  styles.mapMarker,
+                  { top: pos.top as any, left: pos.left as any, backgroundColor: markerColor },
+                  isSelected && styles.markerSelected,
+                ]}
+                onPress={() => setPontoSelecionado(ponto)}
+                accessibilityLabel={`Ponto: ${ponto.titulo}`}
+                accessibilityRole="button"
+              >
+                <Text style={styles.markerIcon}>{icon}</Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
 
         <View style={styles.fortalezaWatermark}>
           <Text style={styles.fortalezaLabel}>
-            FORTALEZA - CE ({displayedPontos.length} pontos)
+            FORTALEZA - CE ({displayedPontos.length} pts • Zoom {Math.round(zoomScale * 100)}%)
           </Text>
         </View>
 
-        {/* Marcadores dos Pontos Projetados por Latitude e Longitude */}
-        {displayedPontos.map((ponto, index) => {
-          const isSelected = pontoSelecionado?.id === ponto.id;
-          let markerColor = COLORS.accessible;
-          let icon = '♿';
-
-          if (ponto.estado === 'parcial') {
-            markerColor = COLORS.partial;
-            icon = '⚠️';
-          } else if (ponto.estado === 'inacessivel') {
-            markerColor = COLORS.inaccessible;
-            icon = '🚫';
-          } else if (ponto.categoria === 'rampa') {
-            markerColor = COLORS.accent;
-            icon = '📐';
-          }
-
-          const pos = projectCoordinatesToMap(ponto.latitude, ponto.longitude, index);
-
-          return (
-            <TouchableOpacity
-              key={ponto.id}
-              style={[
-                styles.mapMarker,
-                { top: pos.top as any, left: pos.left as any, backgroundColor: markerColor },
-                isSelected && styles.markerSelected,
-              ]}
-              onPress={() => setPontoSelecionado(ponto)}
-              accessibilityLabel={`Ponto: ${ponto.titulo}`}
-              accessibilityRole="button"
-            >
-              <Text style={styles.markerIcon}>{icon}</Text>
-            </TouchableOpacity>
-          );
-        })}
+        {/* Controles Flutuantes de Zoom e Centralização do Mapa */}
+        <View style={styles.zoomControls}>
+          <TouchableOpacity
+            style={styles.zoomBtn}
+            onPress={handleZoomIn}
+            accessibilityLabel="Ampliar mapa"
+            accessibilityRole="button"
+          >
+            <Text style={styles.zoomBtnText}>+</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.zoomBtn}
+            onPress={handleZoomOut}
+            accessibilityLabel="Reduzir zoom do mapa"
+            accessibilityRole="button"
+          >
+            <Text style={styles.zoomBtnText}>−</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.zoomBtn}
+            onPress={handleResetMap}
+            accessibilityLabel="Centralizar mapa de Fortaleza"
+            accessibilityRole="button"
+          >
+            <Text style={styles.zoomBtnReset}>🎯</Text>
+          </TouchableOpacity>
+        </View>
 
         {/* Botão Flutuante + Cadastrar Ponto */}
         <TouchableOpacity
@@ -259,6 +366,41 @@ const styles = StyleSheet.create({
     backgroundColor: '#E5E7EB',
     position: 'relative',
     overflow: 'hidden',
+  },
+  interactiveMapSurface: {
+    width: '100%',
+    height: '100%',
+    position: 'relative',
+  },
+  zoomControls: {
+    position: 'absolute',
+    top: 12,
+    right: 12,
+    gap: 8,
+  },
+  zoomBtn: {
+    width: 38,
+    height: 38,
+    borderRadius: 10,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#CBD5E1',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  zoomBtnText: {
+    fontSize: 20,
+    fontWeight: '800',
+    color: '#0F172A',
+    lineHeight: 22,
+  },
+  zoomBtnReset: {
+    fontSize: 16,
   },
   streetGridHorizontal1: {
     position: 'absolute',
