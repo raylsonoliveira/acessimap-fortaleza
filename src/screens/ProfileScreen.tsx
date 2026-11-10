@@ -91,148 +91,28 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
-      {/* Seção Avatar do Figma */}
-      <View style={styles.avatarSection}>
+      {/* Seção Avatar Horizontal do Figma (Página 9) */}
+      <View style={styles.avatarRowFigma}>
         <View style={styles.avatarCircle}>
           <Text style={styles.avatarIcon}>👤</Text>
         </View>
-        <Text style={styles.userName}>{user?.nome || 'Usuário AcessiMap'}</Text>
-        <Text style={styles.userHandle}>{user?.handle || '@usuario123'}</Text>
-        <Text style={styles.userEmail}>{user?.email || 'email@exemplo.com'}</Text>
-        {user?.telefone ? (
-          <Text style={styles.userPhone}>📞 {user.telefone}</Text>
-        ) : null}
-      </View>
-
-      {/* Estatísticas Rápidas do Colaborador */}
-      <View style={styles.statsCard}>
-        <View style={styles.statItem}>
-          <Text style={styles.statNumber}>{meusPontos.length}</Text>
-          <Text style={styles.statLabel}>Meus Pontos</Text>
-        </View>
-        <View style={styles.statDivider} />
-        <View style={styles.statItem}>
-          <Text style={styles.statNumber}>{minhasOcorrencias.length}</Text>
-          <Text style={styles.statLabel}>Meus Reportes</Text>
-        </View>
-        <View style={styles.statDivider} />
-        <View style={styles.statItem}>
-          <Text style={styles.statNumber}>{pontos.length}</Text>
-          <Text style={styles.statLabel}>Total Fortaleza</Text>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.userName}>{user?.nome || 'Usuário'}</Text>
+          <Text style={styles.userHandle}>{user?.handle || '@usuario123'}</Text>
+          <Text style={styles.userEmail}>{user?.email || 'email@exemplo.com'}</Text>
         </View>
       </View>
 
-      {/* Menu com Setas do Figma (Tela 8) */}
+      {/* Menu com Setas do Figma (Tela 8 - Página 9: Meus reportes, Minhas rotas, Favoritos, Configurações) */}
       <View style={styles.menuSection}>
-        {/* 1. Editar Perfil (RF04) */}
-        <TouchableOpacity
-          style={styles.menuRow}
-          onPress={() => {
-            setNomeInput(user?.nome || '');
-            setTelefoneInput(user?.telefone || '');
-            setHandleInput(user?.handle || '');
-            setEditandoPerfil(!editandoPerfil);
-          }}
-        >
-          <View style={styles.menuLeft}>
-            <Text style={styles.menuIcon}>✏️</Text>
-            <Text style={styles.menuText}>Editar perfil (RF04)</Text>
-          </View>
-          <Text style={styles.chevron}>{editandoPerfil ? '▼' : '›'}</Text>
-        </TouchableOpacity>
-
-        {editandoPerfil && (
-          <View style={styles.editProfileBox}>
-            <Input
-              label="Nome completo"
-              value={nomeInput}
-              onChangeText={setNomeInput}
-              placeholder="Seu nome completo"
-            />
-            <Input
-              label="Identificador (@handle)"
-              value={handleInput}
-              onChangeText={setHandleInput}
-              placeholder="@seu_usuario"
-            />
-            <Input
-              label="Telefone"
-              value={telefoneInput}
-              onChangeText={setTelefoneInput}
-              placeholder="(85) 99999-9999"
-            />
-            <Button
-              title="Salvar Dados do Perfil"
-              onPress={handleSalvarPerfil}
-              loading={salvandoPerfil}
-              style={{ marginTop: 8 }}
-            />
-          </View>
-        )}
-
-        {/* 2. Meus Pontos Cadastrados (RF04, RF07, RF08) */}
-        <TouchableOpacity
-          style={styles.menuRow}
-          onPress={() => setShowMeusPontos(!showMeusPontos)}
-        >
-          <View style={styles.menuLeft}>
-            <Text style={styles.menuIcon}>📍</Text>
-            <Text style={styles.menuText}>Meus pontos cadastrados ({meusPontos.length})</Text>
-          </View>
-          <Text style={styles.chevron}>{showMeusPontos ? '▼' : '›'}</Text>
-        </TouchableOpacity>
-
-        {showMeusPontos && (
-          <View style={styles.reportesSubList}>
-            {meusPontos.length === 0 ? (
-              <Text style={styles.emptyText}>Você ainda não cadastrou pontos.</Text>
-            ) : (
-              meusPontos.map(pt => (
-                <View key={pt.id} style={styles.reportItem}>
-                  <View style={{ flex: 1 }}>
-                    <Text style={styles.reportType}>{pt.categoria.toUpperCase()} • ★ {pt.nota}</Text>
-                    <Text style={styles.reportDesc} numberOfLines={1}>
-                      {pt.titulo}
-                    </Text>
-                    <Text style={styles.reportAddress}>📍 {pt.endereco}</Text>
-                  </View>
-                  <TouchableOpacity
-                    onPress={() => onEditPonto(pt)}
-                    style={styles.actionSmallBtn}
-                    accessibilityLabel={`Editar ponto ${pt.titulo}`}
-                  >
-                    <Text style={styles.actionSmallText}>✏️</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    onPress={() => {
-                      Alert.alert('Excluir Ponto', `Remover "${pt.titulo}"?`, [
-                        { text: 'Cancelar', style: 'cancel' },
-                        {
-                          text: 'Excluir',
-                          style: 'destructive',
-                          onPress: () => excluirPonto(pt.id),
-                        },
-                      ]);
-                    }}
-                    style={styles.actionSmallBtn}
-                    accessibilityLabel={`Excluir ponto ${pt.titulo}`}
-                  >
-                    <Text style={styles.actionSmallText}>🗑️</Text>
-                  </TouchableOpacity>
-                </View>
-              ))
-            )}
-          </View>
-        )}
-
-        {/* 3. Minhas Ocorrências / Meus Reportes (RF17) */}
+        {/* 1. Meus reportes (RF17) */}
         <TouchableOpacity
           style={styles.menuRow}
           onPress={() => setShowMeusReportes(!showMeusReportes)}
         >
           <View style={styles.menuLeft}>
             <Text style={styles.menuIcon}>⚠️</Text>
-            <Text style={styles.menuText}>Minhas ocorrências ({ocorrencias.length})</Text>
+            <Text style={styles.menuText}>Meus reportes ({ocorrencias.length})</Text>
           </View>
           <Text style={styles.chevron}>{showMeusReportes ? '▼' : '›'}</Text>
         </TouchableOpacity>
@@ -294,24 +174,132 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
           </View>
         ) : null}
 
-        {/* 4. Minhas Rotas */}
+        {/* 2. Minhas rotas */}
         <TouchableOpacity style={styles.menuRow} onPress={onNavigateToRotas}>
           <View style={styles.menuLeft}>
             <Text style={styles.menuIcon}>🔀</Text>
-            <Text style={styles.menuText}>Minhas rotas seguras</Text>
+            <Text style={styles.menuText}>Minhas rotas</Text>
           </View>
           <Text style={styles.chevron}>›</Text>
         </TouchableOpacity>
+
+        {/* 3. Favoritos / Meus pontos cadastrados (RF04, RF07, RF08) */}
+        <TouchableOpacity
+          style={styles.menuRow}
+          onPress={() => setShowMeusPontos(!showMeusPontos)}
+        >
+          <View style={styles.menuLeft}>
+            <Text style={styles.menuIcon}>🤍</Text>
+            <Text style={styles.menuText}>Favoritos / Meus pontos ({meusPontos.length})</Text>
+          </View>
+          <Text style={styles.chevron}>{showMeusPontos ? '▼' : '›'}</Text>
+        </TouchableOpacity>
+
+        {showMeusPontos && (
+          <View style={styles.reportesSubList}>
+            {meusPontos.length === 0 ? (
+              <Text style={styles.emptyText}>Você ainda não cadastrou pontos.</Text>
+            ) : (
+              meusPontos.map(pt => (
+                <View key={pt.id} style={styles.reportItem}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.reportType}>{pt.categoria.toUpperCase()} • ★ {pt.nota}</Text>
+                    <Text style={styles.reportDesc} numberOfLines={1}>
+                      {pt.titulo}
+                    </Text>
+                    <Text style={styles.reportAddress}>📍 {pt.endereco}</Text>
+                  </View>
+                  <TouchableOpacity
+                    onPress={() => onEditPonto(pt)}
+                    style={styles.actionSmallBtn}
+                    accessibilityLabel={`Editar ponto ${pt.titulo}`}
+                  >
+                    <Text style={styles.actionSmallText}>✏️</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => {
+                      Alert.alert('Excluir Ponto', `Remover "${pt.titulo}"?`, [
+                        { text: 'Cancelar', style: 'cancel' },
+                        {
+                          text: 'Excluir',
+                          style: 'destructive',
+                          onPress: () => excluirPonto(pt.id),
+                        },
+                      ]);
+                    }}
+                    style={styles.actionSmallBtn}
+                    accessibilityLabel={`Excluir ponto ${pt.titulo}`}
+                  >
+                    <Text style={styles.actionSmallText}>🗑️</Text>
+                  </TouchableOpacity>
+                </View>
+              ))
+            )}
+          </View>
+        )}
+
+        {/* 4. Configurações / Editar Perfil (RF04) */}
+        <TouchableOpacity
+          style={styles.menuRow}
+          onPress={() => {
+            setNomeInput(user?.nome || '');
+            setTelefoneInput(user?.telefone || '');
+            setHandleInput(user?.handle || '');
+            setEditandoPerfil(!editandoPerfil);
+          }}
+        >
+          <View style={styles.menuLeft}>
+            <Text style={styles.menuIcon}>⚙️</Text>
+            <Text style={styles.menuText}>Configurações</Text>
+          </View>
+          <Text style={styles.chevron}>{editandoPerfil ? '▼' : '›'}</Text>
+        </TouchableOpacity>
+
+        {editandoPerfil && (
+          <View style={styles.editProfileBox}>
+            <Input
+              label="Nome completo"
+              value={nomeInput}
+              onChangeText={setNomeInput}
+              placeholder="Seu nome completo"
+            />
+            <Input
+              label="Identificador (@handle)"
+              value={handleInput}
+              onChangeText={setHandleInput}
+              placeholder="@seu_usuario"
+            />
+            <Input
+              label="Telefone"
+              value={telefoneInput}
+              onChangeText={setTelefoneInput}
+              placeholder="(85) 99999-9999"
+            />
+            <Button
+              title="Salvar Dados do Perfil"
+              onPress={handleSalvarPerfil}
+              loading={salvandoPerfil}
+              style={{ marginTop: 8 }}
+            />
+          </View>
+        )}
       </View>
 
-      {/* Botão Sair do Figma */}
+      {/* Link Sair do Figma alinhado à esquerda */}
       <TouchableOpacity
         style={styles.logoutBtn}
         onPress={handleLogout}
         accessibilityRole="button"
       >
-        <Text style={styles.logoutText}>Sair da Conta</Text>
+        <Text style={styles.logoutText}>Sair</Text>
       </TouchableOpacity>
+
+      {/* Pílula Locais no canto inferior direito igual ao Figma */}
+      <View style={{ alignItems: 'flex-end', marginTop: 24 }}>
+        <View style={{ backgroundColor: COLORS.primary, paddingHorizontal: 14, paddingVertical: 6, borderRadius: RADIUS.full }}>
+          <Text style={{ color: COLORS.textWhite, fontSize: 12, fontWeight: '700' }}>Locais</Text>
+        </View>
+      </View>
     </ScrollView>
   );
 };
@@ -324,70 +312,41 @@ const styles = StyleSheet.create({
   scrollContent: {
     padding: SPACING.lg,
   },
-  avatarSection: {
+  avatarRowFigma: {
+    flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: SPACING.md,
+    gap: 14,
+    paddingVertical: SPACING.md,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.border,
   },
   avatarCircle: {
-    width: 88,
-    height: 88,
+    width: 60,
+    height: 60,
     borderRadius: RADIUS.full,
-    backgroundColor: COLORS.surfaceAlt,
-    borderWidth: 2,
+    backgroundColor: COLORS.primaryLight,
+    borderWidth: 2.5,
     borderColor: COLORS.primary,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: SPACING.sm,
   },
   avatarIcon: {
-    fontSize: 44,
+    fontSize: 30,
   },
   userName: {
-    fontSize: 18,
-    fontWeight: '800',
+    fontSize: 17,
+    fontWeight: '700',
     color: COLORS.textPrimary,
   },
   userHandle: {
-    fontSize: 14,
-    color: COLORS.textSecondary,
-    marginTop: 2,
-  },
-  userEmail: {
-    fontSize: 12,
+    fontSize: 13,
     color: COLORS.textMuted,
     marginTop: 2,
   },
-  userPhone: {
-    fontSize: 12,
-    color: COLORS.textSecondary,
-    marginTop: 2,
-  },
-  statsCard: {
-    flexDirection: 'row',
-    backgroundColor: COLORS.surfaceAlt,
-    borderRadius: RADIUS.md,
-    paddingVertical: SPACING.md,
-    marginVertical: SPACING.md,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-  },
-  statItem: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  statNumber: {
-    fontSize: 18,
-    fontWeight: '800',
-    color: COLORS.primary,
-  },
-  statLabel: {
+  userEmail: {
     fontSize: 11,
     color: COLORS.textSecondary,
     marginTop: 2,
-  },
-  statDivider: {
-    width: 1,
-    backgroundColor: COLORS.border,
   },
   menuSection: {
     marginVertical: SPACING.sm,
@@ -469,14 +428,13 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   logoutBtn: {
-    marginTop: SPACING.xl,
-    paddingVertical: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
+    marginTop: SPACING.md,
+    paddingVertical: 12,
+    alignItems: 'flex-start',
   },
   logoutText: {
-    fontSize: 16,
+    fontSize: 15,
     color: COLORS.inaccessible,
-    fontWeight: '700',
+    fontWeight: '600',
   },
 });

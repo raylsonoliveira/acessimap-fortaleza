@@ -611,32 +611,36 @@
       if (!state.user) {
         if (state.authFlow === 'login') {
           html += `
-            <div class="screen-body p-lg" style="justify-content:center; background:#fff;">
-              <div style="text-align:center; margin-bottom:22px;">
-                <div style="width:74px;height:74px;border-radius:50%;background:#E6F4EF;border:2px solid #00875F;display:inline-flex;align-items:center;justify-content:center;font-size:36px;margin-bottom:8px;">♿</div>
-                <div style="font-size:24px;font-weight:800;color:#00875F;">AcessiMap</div>
-                <div style="font-size:13px;font-weight:700;color:#64748B;letter-spacing:1px;">FORTALEZA</div>
+            <div class="screen-body p-lg" style="justify-content:center; background:#fff; position:relative;">
+              <div style="text-align:center; margin-bottom:24px;">
+                <div style="width:76px;height:76px;border-radius:50%;background:#00875F;display:inline-flex;align-items:center;justify-content:center;font-size:38px;color:#fff;margin-bottom:10px;box-shadow:0 6px 16px rgba(0,135,95,0.28);">♿</div>
+                <div style="font-size:24px;font-weight:800;color:#0F172A;letter-spacing:-0.4px;">AcessiMap</div>
+                <div style="font-size:14px;font-weight:500;color:#64748B;">Fortaleza</div>
               </div>
               ${state.authError ? `<div class="error-msg">${state.authError}</div>` : ''}
               <div class="form-group">
-                <label class="form-label">E-mail ou usuário</label>
-                <div class="input-wrap">
-                  <span style="margin-right:8px;">✉️</span>
-                  <input id="login-email" type="email" value="raylsonsoaresdeoliveira@gmail.com" />
+                <div class="input-wrap" style="background:#F8FAFC;height:48px;">
+                  <span style="margin-right:10px;color:#64748B;">✉️</span>
+                  <input id="login-email" type="email" placeholder="E-mail ou usuário" value="raylsonsoaresdeoliveira@gmail.com" style="background:transparent;" />
                 </div>
               </div>
               <div class="form-group">
-                <label class="form-label">Senha</label>
-                <div class="input-wrap">
-                  <span style="margin-right:8px;">🔒</span>
-                  <input id="login-pass" type="password" value="123456" />
+                <div class="input-wrap" style="background:#F8FAFC;height:48px;">
+                  <span style="margin-right:10px;color:#64748B;">🔒</span>
+                  <input id="login-pass" type="password" placeholder="Senha" value="123456" style="background:transparent;" />
+                  <span style="color:#64748B;font-size:14px;cursor:pointer;" onclick="const i=document.getElementById('login-pass');i.type=i.type==='password'?'text':'password';">👁️</span>
                 </div>
               </div>
-              <button class="btn btn-primary" onclick="handleLogin()">Entrar</button>
-              <div style="text-align:center;margin:10px 0;font-size:12px;color:#00875F;font-weight:700;cursor:pointer;" onclick="switchAuth('recovery')">🔑 Esqueceu sua senha? Recuperar acesso</div>
-              <button class="btn btn-outline" onclick="switchAuth('register')">Criar uma conta</button>
-              <div style="text-align:center;margin-top:24px;">
-                <span style="background:#0D9488;color:#fff;font-size:11px;font-weight:700;padding:5px 14px;border-radius:999px;">Locais Acessíveis</span>
+              <button class="btn btn-primary" style="height:48px;border-radius:10px;font-size:15px;" onclick="handleLogin()">Entrar</button>
+              <div style="text-align:center;margin:14px 0 10px 0;font-size:12px;color:#64748B;cursor:pointer;" onclick="switchAuth('recovery')">Esqueceu sua senha?</div>
+              <div style="display:flex;align-items:center;gap:10px;margin:6px 0 10px 0;">
+                <div style="flex:1;height:1px;background:#E2E8F0;"></div>
+                <span style="font-size:11px;color:#94A3B8;font-weight:600;">ou</span>
+                <div style="flex:1;height:1px;background:#E2E8F0;"></div>
+              </div>
+              <button class="btn btn-outline" style="height:48px;border-radius:10px;font-size:15px;" onclick="switchAuth('register')">Criar uma conta</button>
+              <div style="position:absolute;bottom:16px;right:18px;">
+                <span style="background:#00875F;color:#fff;font-size:12px;font-weight:700;padding:7px 16px;border-radius:999px;box-shadow:0 4px 10px rgba(0,135,95,0.3);">Locais</span>
               </div>
             </div>
           `;
@@ -647,55 +651,62 @@
               <h2>Recuperar Senha</h2>
               <span style="width:24px;"></span>
             </div>
-            <div class="screen-body p-lg" style="background:#fff;justify-content:center;">
+            <div class="screen-body p-lg" style="background:#fff;justify-content:center;position:relative;">
               <div style="font-size:18px;font-weight:800;margin-bottom:4px;">🔑 Recuperação de Senha</div>
               <div style="font-size:12px;color:#64748B;margin-bottom:14px;">Informe seu e-mail cadastrado e defina uma nova senha (ou receba o link via Firebase Auth).</div>
               ${state.authError ? `<div class="error-msg">${state.authError}</div>` : ''}
               ${state.recoverySuccess ? `<div style="background:#E6F4EF;color:#00875F;font-size:12px;font-weight:700;padding:10px;border-radius:8px;margin-bottom:10px;text-align:center;">${state.recoverySuccess}</div>` : ''}
               <div class="form-group">
-                <label class="form-label">E-mail da conta</label>
-                <div class="input-wrap"><span style="margin-right:8px;">✉️</span><input id="rec-email" value="raylsonsoaresdeoliveira@gmail.com" /></div>
+                <div class="input-wrap" style="background:#F8FAFC;height:48px;"><span style="margin-right:10px;">✉️</span><input id="rec-email" placeholder="E-mail cadastrado" value="raylsonsoaresdeoliveira@gmail.com" style="background:transparent;" /></div>
               </div>
               <div class="form-group">
-                <label class="form-label">Nova Senha (mín. 6 caracteres)</label>
-                <div class="input-wrap"><span style="margin-right:8px;">🔒</span><input id="rec-pass" type="password" value="123456" /></div>
+                <div class="input-wrap" style="background:#F8FAFC;height:48px;"><span style="margin-right:10px;">🔒</span><input id="rec-pass" type="password" placeholder="Nova senha (mín. 6 caracteres)" value="123456" style="background:transparent;" /></div>
               </div>
               <button class="btn btn-primary" onclick="handleRecovery()">Redefinir Senha Agora</button>
               <button class="btn btn-outline" style="margin-top:8px;" onclick="switchAuth('login')">Voltar para o Login</button>
+              <div style="position:absolute;bottom:16px;right:18px;">
+                <span style="background:#00875F;color:#fff;font-size:12px;font-weight:700;padding:7px 16px;border-radius:999px;">Locais</span>
+              </div>
             </div>
           `;
         } else {
           html += `
             <div class="sub-header">
               <button class="icon-btn" onclick="switchAuth('login')">←</button>
-              <h2>Criar conta (Tela 2)</h2>
+              <h2>Criar conta</h2>
               <span style="width:24px;"></span>
             </div>
-            <div class="screen-body p-lg" style="background:#fff;">
+            <div class="screen-body p-lg" style="background:#fff;position:relative;">
               ${state.authError ? `<div class="error-msg">${state.authError}</div>` : ''}
               <div class="form-group">
-                <label class="form-label">Nome completo</label>
-                <div class="input-wrap"><span style="margin-right:8px;">👤</span><input id="reg-nome" placeholder="Ex: Raylson Oliveira" /></div>
+                <div class="input-wrap" style="background:#F8FAFC;height:46px;"><span style="margin-right:10px;color:#64748B;">👤</span><input id="reg-nome" placeholder="Nome completo" style="background:transparent;" /></div>
               </div>
               <div class="form-group">
-                <label class="form-label">E-mail</label>
-                <div class="input-wrap"><span style="margin-right:8px;">✉️</span><input id="reg-email" placeholder="seu@email.com" /></div>
+                <div class="input-wrap" style="background:#F8FAFC;height:46px;"><span style="margin-right:10px;color:#64748B;">✉️</span><input id="reg-email" placeholder="E-mail" style="background:transparent;" /></div>
               </div>
               <div class="form-group">
-                <label class="form-label">Telefone</label>
-                <div class="input-wrap"><span style="margin-right:8px;">📞</span><input id="reg-tel" placeholder="(85) 99999-9999" /></div>
+                <div class="input-wrap" style="background:#F8FAFC;height:46px;"><span style="margin-right:10px;color:#64748B;">📞</span><input id="reg-tel" placeholder="Telefone" style="background:transparent;" /></div>
               </div>
               <div class="form-group">
-                <label class="form-label">Senha (mín. 6 caracteres)</label>
-                <div class="input-wrap"><span style="margin-right:8px;">🔒</span><input id="reg-pass" type="password" placeholder="Crie uma senha" /></div>
+                <div class="input-wrap" style="background:#F8FAFC;height:46px;">
+                  <span style="margin-right:10px;color:#64748B;">🔒</span>
+                  <input id="reg-pass" type="password" placeholder="Senha" style="background:transparent;" />
+                  <span style="color:#64748B;font-size:14px;">👁️</span>
+                </div>
               </div>
               <div class="form-group">
-                <label class="form-label">Confirmar senha</label>
-                <div class="input-wrap"><span style="margin-right:8px;">🔒</span><input id="reg-pass2" type="password" placeholder="Repita a senha" /></div>
+                <div class="input-wrap" style="background:#F8FAFC;height:46px;">
+                  <span style="margin-right:10px;color:#64748B;">🔒</span>
+                  <input id="reg-pass2" type="password" placeholder="Confirmar senha" style="background:transparent;" />
+                  <span style="color:#64748B;font-size:14px;">👁️</span>
+                </div>
               </div>
-              <button class="btn btn-primary" onclick="handleRegister()">Cadastrar</button>
-              <div style="text-align:center;margin-top:14px;font-size:13px;color:#64748B;cursor:pointer;" onclick="switchAuth('login')">
-                Já tem uma conta? <b style="color:#00875F;">Entrar</b>
+              <button class="btn btn-primary" style="height:48px;border-radius:10px;font-size:15px;margin-top:8px;" onclick="handleRegister()">Cadastrar</button>
+              <div style="text-align:center;margin-top:16px;font-size:13px;color:#64748B;cursor:pointer;" onclick="switchAuth('login')">
+                Já tem uma conta? <b style="color:#0F172A;">Entrar</b>
+              </div>
+              <div style="position:absolute;bottom:16px;right:18px;">
+                <span style="background:#00875F;color:#fff;font-size:12px;font-weight:700;padding:7px 16px;border-radius:999px;box-shadow:0 4px 10px rgba(0,135,95,0.3);">Locais</span>
               </div>
             </div>
           `;
@@ -930,7 +941,7 @@
         `;
       }
 
-      // Abas principais
+      // Abas principais (Layout idêntico às capturas do Figma nas páginas 8, 9 e 10)
       if (state.currentTab === 'mapa') {
         const filtrados = state.pontos.filter(p => {
           const catOk = state.filtroCategoria === 'todos' || p.categoria === state.filtroCategoria;
@@ -940,44 +951,53 @@
         const sel = state.pontos.find(x => x.id === state.selectedPointId) || filtrados[0];
 
         return `
-          <div style="padding:8px 12px;background:#fff;border-bottom:1px solid #E2E8F0;">
-            <div class="input-wrap" style="height:38px;background:#F1F5F9;">
-              <span style="margin-right:6px;">🔍</span>
-              <input placeholder="Buscar pontos em Fortaleza..." value="${state.busca}" oninput="state.busca = this.value; render();" />
-            </div>
+          <!-- Sub-barra do Mapa igual ao Figma: AcessiMap Fortaleza + ícone de prédio -->
+          <div style="height:46px;padding:0 16px;background:#fff;border-bottom:1px solid #E2E8F0;display:flex;align-items:center;justify-content:space-between;">
+            <span style="width:24px;"></span>
+            <span style="font-size:15px;font-weight:700;color:#0F172A;">AcessiMap Fortaleza</span>
+            <span style="font-size:17px;cursor:pointer;" onclick="openNewPoint()" title="Cadastrar Ponto">🏛️</span>
           </div>
-          <div class="map-canvas" style="position:relative;flex:1;min-height:290px;">
+
+          <!-- Mapa Colaborativo Interativo com Hamburger, Pinos Verdes e Ponto Azul -->
+          <div class="map-canvas" style="position:relative;flex:1;min-height:330px;">
             <div id="real-leaflet-map" style="width:100%;height:100%;z-index:1;"></div>
-            <div style="position:absolute;top:10px;right:10px;z-index:400;display:flex;flex-direction:column;gap:6px;">
+            <!-- Botão Hamburger igual ao Figma no canto superior esquerdo -->
+            <button onclick="openNewPoint()" title="Cadastrar Novo Ponto (+)" style="position:absolute;top:12px;left:12px;z-index:400;width:38px;height:38px;border-radius:10px;border:1px solid #E2E8F0;background:#fff;font-size:18px;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,0.15);">☰</button>
+            <!-- Controles de Zoom (+/-) no canto superior direito -->
+            <div style="position:absolute;top:12px;right:12px;z-index:400;display:flex;flex-direction:column;gap:6px;">
               <button onclick="zoomMap(1)" style="width:36px;height:36px;border-radius:10px;border:1px solid #CBD5E1;background:#fff;font-size:18px;font-weight:800;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,0.2);">+</button>
               <button onclick="zoomMap(-1)" style="width:36px;height:36px;border-radius:10px;border:1px solid #CBD5E1;background:#fff;font-size:18px;font-weight:800;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,0.2);">−</button>
               <button onclick="resetMapCenter()" title="Centralizar em Fortaleza" style="width:36px;height:36px;border-radius:10px;border:1px solid #CBD5E1;background:#fff;font-size:15px;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,0.2);">🎯</button>
             </div>
-            <button class="fab" style="z-index:400;" onclick="openNewPoint()">➕ Novo Ponto</button>
-          </div>
-          <div class="pills-bar">
-            ${[
-              {k:'todos', l:'Todos'},
-              {k:'rampa', l:'Rampas'},
-              {k:'calcada', l:'Calçadas'},
-              {k:'acesso', l:'Acessos'},
-              {k:'predio', l:'Locais'}
-            ].map(f => `<span class="pill ${state.filtroCategoria === f.k ? 'active' : ''}" onclick="setFilter('${f.k}')">${f.l}</span>`).join('')}
-          </div>
-          <div style="padding:12px;background:#fff;">
             ${sel ? `
-              <div style="border:1.5px solid #E6F4EF;border-radius:12px;padding:12px;cursor:pointer;" onclick="openPointDetail('${sel.id}')">
-                <div style="display:flex;justify-content:space-between;align-items:flex-start;">
-                  <div style="font-size:14px;font-weight:800;">${sel.titulo}</div>
-                  ${badgeHtml(sel.estado)}
+              <!-- Mini Card flutuante na base esquerda do mapa ao selecionar pino -->
+              <div onclick="openPointDetail('${sel.id}')" style="position:absolute;bottom:10px;left:10px;right:10px;z-index:400;background:rgba(255,255,255,0.96);border:1.5px solid #00875F;border-radius:12px;padding:8px 12px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.15);display:flex;justify-content:space-between;align-items:center;">
+                <div style="overflow:hidden;padding-right:8px;">
+                  <div style="font-size:12px;font-weight:800;color:#0F172A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${sel.titulo}</div>
+                  <div style="font-size:10px;color:#64748B;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">⭐ ${sel.nota.toFixed(1)} • Toque para detalhes/editar</div>
                 </div>
-                <div style="font-size:11px;color:#64748B;margin:4px 0;">📍 ${sel.endereco}</div>
-                <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:700;margin-top:6px;padding-top:6px;border-top:1px solid #E2E8F0;">
-                  <span>⭐ ${sel.nota.toFixed(1)} (${sel.avaliacoesCount} avaliações)</span>
-                  <span style="color:#00875F;">Ver detalhes / Editar →</span>
-                </div>
+                <span style="background:#00875F;color:#fff;font-size:11px;font-weight:700;padding:5px 10px;border-radius:8px;white-space:nowrap;">Detalhes →</span>
               </div>
-            ` : `<div style="text-align:center;font-size:12px;color:#64748B;">Nenhum ponto para este filtro.</div>`}
+            ` : ''}
+          </div>
+
+          <!-- Barra de Categorias do Mapa igual ao Figma (Todos | Rampas | Calçadas | Locais) -->
+          <div style="display:flex;align-items:center;background:#fff;border-top:1px solid #E2E8F0;height:56px;">
+            <div onclick="setFilter('todos')" style="flex:1;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;background:${state.filtroCategoria === 'todos' ? '#00875F' : '#fff'};color:${state.filtroCategoria === 'todos' ? '#fff' : '#475569'};">
+              <span style="font-size:16px;">🗺️</span>
+              <span style="font-size:11px;font-weight:700;margin-top:2px;">Todos</span>
+            </div>
+            <div onclick="setFilter('rampa')" style="flex:1;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;background:${state.filtroCategoria === 'rampa' ? '#00875F' : '#fff'};color:${state.filtroCategoria === 'rampa' ? '#fff' : '#475569'};">
+              <span style="font-size:16px;">📐</span>
+              <span style="font-size:11px;font-weight:600;margin-top:2px;">Rampas</span>
+            </div>
+            <div onclick="setFilter('calcada')" style="flex:1;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;background:${state.filtroCategoria === 'calcada' ? '#00875F' : '#fff'};color:${state.filtroCategoria === 'calcada' ? '#fff' : '#475569'};">
+              <span style="font-size:16px;">👣</span>
+              <span style="font-size:11px;font-weight:600;margin-top:2px;">Calçadas</span>
+            </div>
+            <div onclick="openNewPoint()" style="padding:0 12px;display:flex;align-items:center;justify-content:center;cursor:pointer;">
+              <span style="background:#00875F;color:#fff;font-size:12px;font-weight:700;padding:7px 14px;border-radius:999px;box-shadow:0 3px 8px rgba(0,135,95,0.28);">+ Locais</span>
+            </div>
           </div>
         `;
       }
@@ -986,31 +1006,41 @@
         const f = state.formOco;
         return `
           <div class="sub-header">
-            <h2>Reportar Ocorrência (Tela 7 / CRUD 2)</h2>
+            <button class="icon-btn" onclick="selectTab('mapa')">←</button>
+            <h2>Reportar Ponto</h2>
+            <span style="width:24px;"></span>
           </div>
-          <div class="p-lg" style="background:#fff;">
-            <div class="form-group">
-              <label class="form-label">Tipo de ocorrência</label>
-              <div class="chip-row">
-                ${[
-                  {k:'rampa', l:'📐 Rampa Danificada'},
-                  {k:'calcada', l:'🚶 Calçada Obstruída'},
-                  {k:'predio', l:'🏛️ Prédio sem Acesso'},
-                  {k:'outro', l:'📍 Outro'}
-                ].map(t => `<span class="chip ${f.tipo === t.k ? 'active' : ''}" onclick="setFormOcoField('tipo','${t.k}')">${t.l}</span>`).join('')}
-              </div>
+          <div class="p-lg" style="background:#fff;flex:1;position:relative;">
+            <div style="font-size:12px;font-weight:600;color:#64748B;margin-bottom:8px;">Tipo de ocorrência</div>
+            <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;">
+              ${[
+                {k:'rampa', ic:'📐', l:'Rampa'},
+                {k:'calcada', ic:'👣', l:'Calçada'},
+                {k:'predio', ic:'🏛️', l:'Prédio Público'},
+                {k:'outro', ic:'＋', l:'Outro'}
+              ].map(t => {
+                const active = f.tipo === t.k;
+                return `
+                  <div onclick="setFormOcoField('tipo','${t.k}')" style="display:flex;align-items:center;padding:12px 14px;border-radius:10px;border:1.5px solid ${active ? '#00875F' : '#E2E8F0'};background:${active ? '#E6F4EF' : '#FFFFFF'};cursor:pointer;">
+                    <span style="font-size:16px;margin-right:10px;color:${active ? '#00875F' : '#475569'};">${t.ic}</span>
+                    <span style="font-size:14px;font-weight:${active ? '700' : '500'};color:${active ? '#00875F' : '#0F172A'};">${t.l}</span>
+                  </div>
+                `;
+              }).join('')}
             </div>
-            <div class="form-group">
-              <label class="form-label">Localização em Fortaleza</label>
-              <div class="input-wrap">
-                <input value="${f.endereco}" oninput="state.formOco.endereco = this.value" />
-              </div>
+
+            <div style="font-size:12px;font-weight:600;color:#64748B;margin-bottom:6px;">Foto do local</div>
+            <div onclick="state.formOco.fotoAnexada = !state.formOco.fotoAnexada; render();" style="border:1.5px dashed #00875F;background:#F0FDFA;border-radius:10px;padding:13px;text-align:center;color:#00875F;font-size:13px;font-weight:600;cursor:pointer;margin-bottom:14px;">
+              ${f.fotoAnexada ? '✅ Foto anexada do local (toque para remover)' : '📷 Tirar foto ou anexar'}
             </div>
-            <div class="form-group">
-              <label class="form-label">Descrição do Problema</label>
-              <textarea class="textarea-field" oninput="state.formOco.descricao = this.value" placeholder="Descreva o obstáculo ou barreira urbana...">${f.descricao}</textarea>
+
+            <div style="font-size:12px;font-weight:600;color:#64748B;margin-bottom:6px;">Comentário (opcional)</div>
+            <div style="position:relative;margin-bottom:14px;">
+              <textarea class="textarea-field" style="min-height:84px;background:#F8FAFC;" oninput="state.formOco.descricao = this.value" placeholder="Descreva o que aconteceu...">${f.descricao}</textarea>
+              <span style="position:absolute;bottom:-6px;right:4px;background:#00875F;color:#fff;font-size:11px;font-weight:700;padding:5px 14px;border-radius:999px;box-shadow:0 3px 8px rgba(0,135,95,0.28);">Locais</span>
             </div>
-            <button class="btn btn-primary" onclick="saveOcorrencia()">Enviar Ocorrência</button>
+
+            <button class="btn btn-primary" style="height:48px;border-radius:10px;font-size:15px;" onclick="saveOcorrencia()">Enviar</button>
           </div>
         `;
       }
@@ -1021,68 +1051,74 @@
         const ocoAtivas = state.ocorrencias.filter(o => o.status !== 'resolvido').length;
         return `
           <div class="sub-header">
-            <h2>Rota Segura (Tela 9 / RF14)</h2>
+            <button class="icon-btn" onclick="selectTab('mapa')">←</button>
+            <h2>Rota segura</h2>
+            <span style="width:24px;"></span>
           </div>
-          <div class="p-lg" style="background:#fff;">
-            <div style="background:#F1F5F9;padding:12px;border-radius:12px;margin-bottom:14px;">
-              <div style="font-size:11px;color:#64748B;">● Ponto de Partida (clique para alternar)</div>
-              <div style="font-size:13px;font-weight:800;color:#00875F;cursor:pointer;margin:2px 0 10px 0;" onclick="cycleOrigem()">${orig.titulo} ▾</div>
-              <div style="font-size:11px;color:#64748B;">📍 Destino Acessível (clique para alternar)</div>
-              <div style="font-size:13px;font-weight:800;color:#00875F;cursor:pointer;margin-top:2px;" onclick="cycleDestino()">${dest.titulo} ▾</div>
-            </div>
-            <div style="border:1.5px solid #E6F4EF;border-radius:14px;padding:14px;margin-bottom:14px;">
-              <div style="font-size:17px;font-weight:800;">Trajeto acessível</div>
-              <div style="font-size:13px;color:#64748B;margin-bottom:12px;">1,2 km · 15 min</div>
-              <div style="display:flex;justify-content:space-between;background:#F1F5F9;padding:9px 12px;border-radius:8px;margin-bottom:6px;font-size:13px;font-weight:600;">
-                <span>✓ Rampas mapeadas</span><b style="color:#00875F;">${state.pontos.length}</b>
-              </div>
-              <div style="display:flex;justify-content:space-between;background:#F1F5F9;padding:9px 12px;border-radius:8px;margin-bottom:6px;font-size:13px;font-weight:600;">
-                <span>✓ Calçadas adaptadas</span><b style="color:#00875F;">5</b>
-              </div>
-              <div style="display:flex;justify-content:space-between;background:#F1F5F9;padding:9px 12px;border-radius:8px;font-size:13px;font-weight:600;">
-                <span>✓ Ocorrências desviadas</span><b style="color:#00875F;">${ocoAtivas}</b>
+          <div class="p-lg" style="background:#fff;flex:1;position:relative;">
+            <div style="border-bottom:1px solid #E2E8F0;padding-bottom:12px;margin-bottom:12px;">
+              <div style="font-size:16px;font-weight:700;color:#0F172A;">Trajeto acessível</div>
+              <div style="font-size:12px;color:#64748B;margin-top:2px;">1,2 km · 15 min</div>
+              <div style="margin-top:8px;font-size:11px;color:#00875F;cursor:pointer;" onclick="cycleDestino()">
+                📍 De: <b>${orig.titulo}</b> → Para: <b>${dest.titulo}</b> (toque p/ alternar)
               </div>
             </div>
-            <button class="btn btn-primary" onclick="state.rotaIniciada=true; render(); alert('Navegação acessível iniciada!');">
-              ${state.rotaIniciada ? '♿ Rota em Andamento' : '🚀 Iniciar rota'}
+
+            <div style="display:flex;flex-direction:column;gap:12px;border-bottom:1px solid #E2E8F0;padding-bottom:16px;margin-bottom:18px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;font-size:13px;">
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <span style="width:20px;height:20px;border-radius:50%;background:#00875F;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;">✓</span>
+                  <span style="color:#334155;font-weight:500;">Rampas</span>
+                </div>
+                <b style="color:#0F172A;">3</b>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;font-size:13px;">
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <span style="width:20px;height:20px;border-radius:50%;background:#00875F;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;">✓</span>
+                  <span style="color:#334155;font-weight:500;">Calçadas adaptadas</span>
+                </div>
+                <b style="color:#0F172A;">5</b>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;font-size:13px;">
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <span style="width:20px;height:20px;border-radius:50%;background:#00875F;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;">✓</span>
+                  <span style="color:#334155;font-weight:500;">Sem obstáculos</span>
+                </div>
+                <b style="color:#0F172A;">0</b>
+              </div>
+            </div>
+
+            <button class="btn btn-primary" style="height:48px;border-radius:10px;font-size:15px;" onclick="state.rotaIniciada=true; render(); alert('Navegação acessível iniciada!');">
+              ${state.rotaIniciada ? '✓ Rota em andamento' : 'Iniciar rota'}
             </button>
+
+            <div style="position:absolute;bottom:16px;right:18px;">
+              <span style="background:#00875F;color:#fff;font-size:12px;font-weight:700;padding:7px 16px;border-radius:999px;box-shadow:0 4px 10px rgba(0,135,95,0.3);">Locais</span>
+            </div>
           </div>
         `;
       }
 
       if (state.currentTab === 'perfil') {
         const u = state.user;
-        const meusPts = state.pontos.filter(p => p.criadoPorId === u.id || p.criadoPor === u.nome);
         return `
-          <div class="p-lg" style="background:#fff;">
-            <div style="text-align:center;margin-bottom:14px;">
-              <div style="width:72px;height:72px;border-radius:50%;background:#F1F5F9;border:2px solid #00875F;display:inline-flex;align-items:center;justify-content:center;font-size:34px;margin-bottom:6px;">👤</div>
-              <div style="font-size:17px;font-weight:800;">${u.nome}</div>
-              <div style="font-size:13px;color:#64748B;">${u.handle}</div>
-              <div style="font-size:11px;color:#94A3B8;">${u.email}</div>
-            </div>
-            <div style="display:flex;background:#F1F5F9;border-radius:10px;padding:10px;text-align:center;margin-bottom:14px;">
-              <div style="flex:1;"><div style="font-size:16px;font-weight:800;color:#00875F;">${meusPts.length}</div><div style="font-size:11px;color:#64748B;">Meus Pontos</div></div>
-              <div style="flex:1;"><div style="font-size:16px;font-weight:800;color:#00875F;">${state.ocorrencias.length}</div><div style="font-size:11px;color:#64748B;">Ocorrências</div></div>
-              <div style="flex:1;"><div style="font-size:16px;font-weight:800;color:#00875F;">${state.pontos.length}</div><div style="font-size:11px;color:#64748B;">Total Mapa</div></div>
-            </div>
-
-            <div style="border-top:1px solid #E2E8F0;padding:12px 0;cursor:pointer;font-weight:700;font-size:14px;display:flex;justify-content:space-between;" onclick="state.editProfileOpen=!state.editProfileOpen;render();">
-              <span>✏️ Editar perfil (RF04)</span><span>${state.editProfileOpen ? '▼' : '›'}</span>
-            </div>
-            ${state.editProfileOpen ? `
-              <div style="background:#F1F5F9;padding:10px;border-radius:10px;margin-bottom:10px;">
-                <div class="input-wrap" style="margin-bottom:6px;"><input id="prof-nome" value="${u.nome}" /></div>
-                <div class="input-wrap" style="margin-bottom:6px;"><input id="prof-handle" value="${u.handle}" /></div>
-                <button class="btn btn-primary" style="height:36px;font-size:13px;" onclick="saveProfile()">Salvar Perfil</button>
+          <div class="p-lg" style="background:#fff;flex:1;position:relative;">
+            <!-- Topo com Avatar à esquerda + Nome e @usuario123 igual à página 9 do Figma -->
+            <div style="display:flex;align-items:center;gap:14px;padding:12px 0 20px 0;border-bottom:1px solid #E2E8F0;">
+              <div style="width:56px;height:56px;border-radius:50%;border:2.5px solid #00875F;background:#E6F4EF;display:flex;align-items:center;justify-content:center;font-size:28px;color:#00875F;">👤</div>
+              <div>
+                <div style="font-size:16px;font-weight:700;color:#0F172A;">${u.nome || 'Usuário'}</div>
+                <div style="font-size:13px;color:#94A3B8;">${u.handle || '@usuario123'}</div>
               </div>
-            ` : ''}
+            </div>
 
-            <div style="border-top:1px solid #E2E8F0;padding:12px 0;cursor:pointer;font-weight:700;font-size:14px;display:flex;justify-content:space-between;" onclick="state.showMeusReportes=!state.showMeusReportes;render();">
-              <span>⚠️ Minhas ocorrências (${state.ocorrencias.length})</span><span>${state.showMeusReportes ? '▼' : '›'}</span>
+            <!-- Menu Idêntico ao Figma: Meus reportes, Minhas rotas, Favoritos, Configurações -->
+            <div style="border-bottom:1px solid #E2E8F0;padding:15px 0;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-size:14px;color:#0F172A;" onclick="state.showMeusReportes=!state.showMeusReportes;render();">
+              <div style="display:flex;align-items:center;gap:12px;"><span>⚠️</span><span>Meus reportes (${state.ocorrencias.length})</span></div>
+              <span style="color:#94A3B8;font-weight:700;">${state.showMeusReportes ? '▼' : '›'}</span>
             </div>
             ${state.showMeusReportes ? `
-              <div style="background:#F1F5F9;padding:10px;border-radius:10px;display:flex;flex-direction:column;gap:8px;">
+              <div style="background:#F8FAFC;padding:10px;border-radius:10px;margin:8px 0;display:flex;flex-direction:column;gap:8px;">
                 ${state.ocorrencias.map(o => `
                   <div style="background:#fff;padding:8px 10px;border-radius:8px;display:flex;align-items:center;justify-content:space-between;border:1px solid #E2E8F0;">
                     <div style="flex:1;">
@@ -1091,7 +1127,6 @@
                         ${badgeHtml(o.status)}
                       </div>
                       <div style="font-size:12px;margin:2px 0;">${o.descricao}</div>
-                      <div style="font-size:10px;color:#64748B;">📍 ${o.endereco}</div>
                     </div>
                     <button class="icon-btn" onclick="openEditOco('${o.id}')">✏️</button>
                     <button class="icon-btn" onclick="deleteOco('${o.id}')">🗑️</button>
@@ -1100,7 +1135,49 @@
               </div>
             ` : ''}
 
-            <button class="btn btn-outline" style="border-color:#EF4444;color:#EF4444;margin-top:20px;" onclick="handleLogout()">Sair da Conta</button>
+            <div style="border-bottom:1px solid #E2E8F0;padding:15px 0;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-size:14px;color:#0F172A;" onclick="selectTab('rotas')">
+              <div style="display:flex;align-items:center;gap:12px;"><span>🔀</span><span>Minhas rotas</span></div>
+              <span style="color:#94A3B8;font-weight:700;">›</span>
+            </div>
+
+            <div style="border-bottom:1px solid #E2E8F0;padding:15px 0;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-size:14px;color:#0F172A;" onclick="state.showMeusPontos=!state.showMeusPontos;render();">
+              <div style="display:flex;align-items:center;gap:12px;"><span>🤍</span><span>Favoritos / Meus Pontos (${state.pontos.length})</span></div>
+              <span style="color:#94A3B8;font-weight:700;">${state.showMeusPontos ? '▼' : '›'}</span>
+            </div>
+            ${state.showMeusPontos ? `
+              <div style="background:#F8FAFC;padding:10px;border-radius:10px;margin:8px 0;display:flex;flex-direction:column;gap:8px;">
+                ${state.pontos.map(p => `
+                  <div style="background:#fff;padding:8px 10px;border-radius:8px;display:flex;align-items:center;justify-content:space-between;border:1px solid #E2E8F0;">
+                    <div style="flex:1;cursor:pointer;" onclick="openPointDetail('${p.id}')">
+                      <div style="font-size:12px;font-weight:700;">${p.titulo}</div>
+                      <div style="font-size:10px;color:#64748B;">⭐ ${p.nota.toFixed(1)} • ${p.endereco}</div>
+                    </div>
+                    <button class="icon-btn" onclick="openEditPoint('${p.id}')">✏️</button>
+                  </div>
+                `).join('')}
+              </div>
+            ` : ''}
+
+            <div style="border-bottom:1px solid #E2E8F0;padding:15px 0;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-size:14px;color:#0F172A;" onclick="state.editProfileOpen=!state.editProfileOpen;render();">
+              <div style="display:flex;align-items:center;gap:12px;"><span>⚙️</span><span>Configurações / Editar Perfil</span></div>
+              <span style="color:#94A3B8;font-weight:700;">${state.editProfileOpen ? '▼' : '›'}</span>
+            </div>
+            ${state.editProfileOpen ? `
+              <div style="background:#F8FAFC;padding:10px;border-radius:10px;margin:8px 0;">
+                <div class="input-wrap" style="margin-bottom:6px;"><input id="prof-nome" value="${u.nome}" placeholder="Nome" /></div>
+                <div class="input-wrap" style="margin-bottom:6px;"><input id="prof-handle" value="${u.handle}" placeholder="@usuario" /></div>
+                <button class="btn btn-primary" style="height:36px;font-size:13px;" onclick="saveProfile()">Salvar Perfil</button>
+              </div>
+            ` : ''}
+
+            <!-- Link Sair vermelho alinhado à esquerda igual ao Figma -->
+            <div style="padding:18px 0;color:#DC2626;font-size:14px;font-weight:600;cursor:pointer;" onclick="handleLogout()">
+              Sair
+            </div>
+
+            <div style="position:absolute;bottom:16px;right:18px;">
+              <span style="background:#00875F;color:#fff;font-size:12px;font-weight:700;padding:7px 16px;border-radius:999px;box-shadow:0 4px 10px rgba(0,135,95,0.3);">Locais</span>
+            </div>
           </div>
         `;
       }
@@ -1354,14 +1431,14 @@
 
       filtrados.forEach(p => {
         const isSel = sel && sel.id === p.id;
-        const bg = p.estado === 'acessivel' ? '#10B981' : p.estado === 'parcial' ? '#F59E0B' : '#EF4444';
+        const bg = p.estado === 'acessivel' ? '#00875F' : p.estado === 'parcial' ? '#F59E0B' : '#EF4444';
         const ic = p.estado === 'acessivel' ? '♿' : p.estado === 'parcial' ? '⚠️' : '🚫';
-        const size = isSel ? 44 : 36;
+        const size = isSel ? 42 : 36;
         const border = isSel ? '3px solid #0F172A' : '2.5px solid #FFFFFF';
 
         const icon = L.divIcon({
           className: 'custom-leaflet-marker',
-          html: `<div style="width:${size}px;height:${size}px;border-radius:50%;background:${bg};border:${border};display:flex;align-items:center;justify-content:center;font-size:${isSel ? 20 : 16}px;box-shadow:0 3px 8px rgba(0,0,0,0.35);transition:transform 0.15s;">${ic}</div>`,
+          html: `<div style="width:${size}px;height:${size}px;border-radius:50%;background:${bg};border:${border};display:flex;align-items:center;justify-content:center;color:#fff;font-size:${isSel ? 18 : 15}px;box-shadow:0 3px 8px rgba(0,0,0,0.35);transition:transform 0.15s;">${ic}</div>`,
           iconSize: [size, size],
           iconAnchor: [size / 2, size / 2]
         });
@@ -1373,6 +1450,15 @@
           render();
         });
       });
+
+      // Ponto azul central de localização do usuário (idêntico à página 9 do Figma)
+      const userBlueDot = L.divIcon({
+        className: 'user-blue-dot',
+        html: `<div style="width:18px;height:18px;border-radius:50%;background:#3B82F6;border:3px solid #FFFFFF;box-shadow:0 0 0 8px rgba(59,130,246,0.22), 0 2px 5px rgba(0,0,0,0.3);"></div>`,
+        iconSize: [18, 18],
+        iconAnchor: [9, 9]
+      });
+      L.marker([-3.742, -38.502], { icon: userBlueDot, interactive: false }).addTo(leafletMap);
 
       setTimeout(() => {
         if (leafletMap) leafletMap.invalidateSize();

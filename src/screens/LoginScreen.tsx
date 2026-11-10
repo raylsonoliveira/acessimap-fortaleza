@@ -137,8 +137,14 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
             accessibilityRole="button"
             accessibilityLabel="Recuperar senha esquecida"
           >
-            <Text style={styles.forgotText}>🔑 Esqueceu sua senha? Recuperar acesso</Text>
+            <Text style={styles.forgotText}>Esqueceu sua senha?</Text>
           </TouchableOpacity>
+
+          <View style={styles.dividerRow}>
+            <View style={styles.dividerLine} />
+            <Text style={styles.dividerText}>ou</Text>
+            <View style={styles.dividerLine} />
+          </View>
 
           <Button
             title="Criar uma conta"
@@ -204,7 +210,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
         {/* Tag inferior "Locais" do Figma */}
         <View style={styles.bottomPillContainer}>
           <View style={styles.bottomPill}>
-            <Text style={styles.bottomPillText}>Locais Acessíveis</Text>
+            <Text style={styles.bottomPillText}>Locais</Text>
           </View>
         </View>
       </ScrollView>
@@ -231,28 +237,25 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: RADIUS.full,
-    backgroundColor: COLORS.primaryLight,
+    backgroundColor: COLORS.primary,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: COLORS.primary,
     marginBottom: SPACING.sm,
   },
   logoIcon: {
     fontSize: 38,
+    color: COLORS.textWhite,
   },
   appName: {
     fontSize: 26,
     fontWeight: '800',
-    color: COLORS.primary,
+    color: COLORS.textPrimary,
     letterSpacing: -0.5,
   },
   appCity: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 15,
+    fontWeight: '500',
     color: COLORS.textSecondary,
-    letterSpacing: 1,
-    textTransform: 'uppercase',
   },
   formSection: {
     width: '100%',
@@ -268,6 +271,22 @@ const styles = StyleSheet.create({
   forgotText: {
     color: COLORS.textSecondary,
     fontSize: 13,
+  },
+  dividerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: SPACING.xs,
+    gap: 10,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: COLORS.border,
+  },
+  dividerText: {
+    fontSize: 12,
+    color: COLORS.textMuted,
+    fontWeight: '600',
   },
   createAccountBtn: {
     marginTop: SPACING.xs,
@@ -315,11 +334,11 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
   bottomPillContainer: {
-    alignItems: 'center',
+    alignItems: 'flex-end',
     marginTop: SPACING.xl,
   },
   bottomPill: {
-    backgroundColor: COLORS.accent,
+    backgroundColor: COLORS.primary,
     paddingHorizontal: SPACING.md,
     paddingVertical: 6,
     borderRadius: RADIUS.full,
